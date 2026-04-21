@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview</title>
+<link rel="stylesheet" href="highlight-github.min.css">
+<link rel="stylesheet" href="preview.css">
+<script src="marked.min.js"></script>
+<script src="highlight.min.js"></script>
+</head>
+<body>
+<article id="content" class="markdown-body"></article>
+<script>
+  marked.setOptions({
+    gfm: true,
+    breaks: false,
+    highlight: function(code, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        try { return hljs.highlight(code, { language: lang }).value; } catch (_) {}
+      }
+      return hljs.highlightAuto(code).value;
+    }
+  });
+
+  window.__updateContent = function(b64) {
+    try {
+      var raw = atob(b64);
+      var bytes = new Uint8Array(raw.length);
+      for (var i = 0; i < raw.length; i++) { bytes[i] = raw.charCodeAt(i); }
+      var text = new TextDecoder('utf-8').decode(bytes);
+      document.getElementById('content').innerHTML = marked.parse(text);
+      document.querySelectorAll('pre code').forEach(function(block) {
+        hljs.highlightElement(block);
+      });
+    } catch(e) {
+      console.error('__updateContent error:', e);
+    }
+  };
+
+  window.__setTheme = function(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+  };
+</script>
+</body>
+</html>
