@@ -9,10 +9,12 @@ struct ContentView: View {
                 HSplitView {
                     EditorView()
                         .frame(minWidth: 200)
-                    if viewModel.showPreview {
-                        PreviewView()
-                            .frame(minWidth: 200)
-                    }
+                    PreviewView()
+                        .frame(
+                            minWidth: viewModel.showPreview ? 200 : 0,
+                            maxWidth: viewModel.showPreview ? .infinity : 0
+                        )
+                        .opacity(viewModel.showPreview ? 1 : 0)
                 }
                 // Floating preview toggle button — bottom-right corner
                 VStack {
@@ -20,9 +22,7 @@ struct ContentView: View {
                     HStack {
                         Spacer()
                         Button {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                viewModel.showPreview.toggle()
-                            }
+                            viewModel.showPreview.toggle()
                         } label: {
                             Image(systemName: viewModel.showPreview ? "sidebar.right" : "sidebar.right.fill")
                                 .font(.system(size: 14, weight: .medium))
