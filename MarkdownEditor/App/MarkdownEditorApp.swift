@@ -9,6 +9,9 @@ struct MarkdownEditorApp: App {
             ContentView()
                 .environmentObject(viewModel)
                 .frame(minWidth: 800, minHeight: 500)
+                .onOpenURL { url in
+                    viewModel.openDocument(url: url)
+                }
         }
         .windowToolbarStyle(.unified)
         .commands {

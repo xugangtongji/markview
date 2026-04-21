@@ -16,7 +16,15 @@ struct FileService {
         panel.title = "打开 Markdown 文件"
 
         guard panel.runModal() == .OK, let url = panel.url else { return nil }
-        return read(from: url).map { ($0, url) }
+        guard let content = read(from: url) else { return nil }
+        NSDocumentController.shared.noteNewRecentDocumentURL(url)
+        return (content, url)
+    }
+
+    func openDocument(at url: URL) -> (content: String, url: URL)? {
+        guard let content = read(from: url) else { return nil }
+        NSDocumentController.shared.noteNewRecentDocumentURL(url)
+        return (content, url)
     }
 
     // MARK: - Save

@@ -92,6 +92,14 @@ final class DocumentViewModel: ObservableObject {
         renderTrigger = renderer.render(markdown: result.content)
     }
 
+    func openDocument(url: URL) {
+        guard let result = fileService.openDocument(at: url) else { return }
+        content = result.content
+        fileURL = result.url
+        isModified = false
+        renderTrigger = renderer.render(markdown: result.content)
+    }
+
     func saveDocument() async {
         if let url = fileURL {
             try? fileService.saveDocument(content: content, to: url)
