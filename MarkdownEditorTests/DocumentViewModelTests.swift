@@ -83,6 +83,55 @@ final class DocumentViewModelTests: XCTestCase {
         XCTAssertEqual(vm.lineCount, 3)
     }
 
+    func testFindNoMatch() {
+        vm.updateContent("Hello world")
+        vm.findText = "xyz"
+        vm.findNext()
+        XCTAssertNil(vm.findResult)
+    }
+
+    func testFindBasicMatch() {
+        vm.updateContent("Hello world")
+        vm.findText = "world"
+        vm.findNext()
+        XCTAssertNotNil(vm.findResult)
+        XCTAssertEqual(vm.findResult?.location, 6)
+        XCTAssertEqual(vm.findResult?.length, 5)
+    }
+
+    func testFindCaseInsensitive() {
+        vm.updateContent("Hello World")
+        vm.findText = "hello"
+        vm.findNext()
+        XCTAssertNotNil(vm.findResult)
+        XCTAssertEqual(vm.findResult?.location, 0)
+    }
+
+    func testFindWrapsAround() {
+        vm.updateContent("ab ab")
+        vm.findText = "ab"
+        vm.findNext()  // finds at 0
+        vm.findNext()  // finds at 3
+        vm.findNext()  // wraps to 0
+        XCTAssertEqual(vm.findResult?.location, 0)
+    }
+
+    func testReplaceAll() {
+        vm.updateContent("foo foo foo")
+        vm.findText = "foo"
+        vm.replaceText = "bar"
+        vm.replaceAll()
+        XCTAssertEqual(vm.content, "bar bar bar")
+    }
+
+    func testReplaceAllNoMatch() {
+        vm.updateContent("foo")
+        vm.findText = "xyz"
+        vm.replaceText = "bar"
+        vm.replaceAll()
+        XCTAssertEqual(vm.content, "foo")
+    }
+
     func testRenderTriggerDebounce() {
         let expectation = expectation(description: "renderTrigger fires after debounce")
         var fired = false

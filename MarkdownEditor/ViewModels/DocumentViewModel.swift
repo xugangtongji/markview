@@ -14,6 +14,12 @@ final class DocumentViewModel: ObservableObject {
     @Published var isDarkMode: Bool = false
     @Published var showPreview: Bool = true
 
+    // MARK: - Find/Replace
+    @Published var showFindBar: Bool = false
+    @Published var findText: String = ""
+    @Published var replaceText: String = ""
+    @Published var findResult: NSRange? = nil
+
     // Downstream subscribers (e.g. PreviewView) observe this to trigger render.
     @Published private(set) var renderTrigger: String = ""
 
@@ -120,5 +126,55 @@ final class DocumentViewModel: ObservableObject {
     func updateCursor(line: Int, column: Int) {
         cursorLine = line
         cursorColumn = column
+    }
+
+    // MARK: - Find/Replace
+
+    func findNext() {
+        guard !findText.isEmpty else { findResult = nil; return }
+        var searchStart = content.startIndex
+        if let current = findResult, let range = Range(current, in: content) {
+            searchStart = range.upperBound
+        }
+        if let range = content.range(of: findText, options: .caseInsensitive, range: searchStart..<content.endIndex) {
+            findResult = NSRange(range, in: content)
+        } else if let range = content.range(of: findText, options: .caseInsensitive) {
+            findResult = NSRange(range, in: content)
+        } else {
+            findResult = nil
+        }
+    }
+
+    func findPrevious() {
+        guard !findText.isEmpty else { findResult = nil; return }
+        var searchEnd = content.endIndex
+        if let current = findResult, let range = Range(current, in: content) {
+            searchEnd = range.lowerBound
+        }
+        if let range = content.range(of: findText, options: [.caseInsensitive, .backwards], range: content.startIndex..<searchEnd) {
+            findResult = NSRange(range, in: content)
+        } else if let range = content.range(of: findText, options: [.caseInsensitive, .backwards]) {
+            findResult = NSRange(range, in: content)
+        } else {
+            findResult = nil
+        }
+    }
+
+    func replaceCurrentAndFindNext() {
+        guard !findText.isEmpty,
+              let current = findResult,
+              let range = Range(current, in: content) else { return }
+        content = content.replacingCharacters(in: range, with: replaceText)
+        isModified = true
+        findNext()
+    }
+
+    func replaceAll() {
+        guard !findText.isEmpty else { return }
+        let replaced = content.replacingOccurrences(of: findText, with: replaceText, options: .caseInsensitive)
+        guard replaced != content else { return }
+        content = replaced
+        isModified = true
+        findResult = nil
     }
 }
