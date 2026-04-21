@@ -57,23 +57,32 @@ struct EditorView: NSViewRepresentable {
 
         func textDidChange(_ notification: Notification) {
             guard let tv = notification.object as? NSTextView else { return }
-            viewModel?.updateContent(tv.string)
-            updateCursor(in: tv)
+            let content = tv.string
+            let (line, column) = cursorPosition(in: tv)
+            let vm = viewModel
+            Task { @MainActor in
+                vm?.updateContent(content)
+                vm?.updateCursor(line: line, column: column)
+            }
         }
 
         func textViewDidChangeSelection(_ notification: Notification) {
             guard let tv = notification.object as? NSTextView else { return }
-            updateCursor(in: tv)
+            let (line, column) = cursorPosition(in: tv)
+            let vm = viewModel
+            Task { @MainActor in
+                vm?.updateCursor(line: line, column: column)
+            }
         }
 
-        private func updateCursor(in textView: NSTextView) {
+        private func cursorPosition(in textView: NSTextView) -> (line: Int, column: Int) {
             let location = textView.selectedRange().location
             let text = textView.string as NSString
             let lineRange = text.lineRange(for: NSRange(location: 0, length: location))
             let line = text.substring(with: NSRange(location: 0, length: location))
                 .components(separatedBy: "\n").count
             let column = location - lineRange.location + 1
-            viewModel?.updateCursor(line: line, column: column)
+            return (line, column)
         }
     }
 }

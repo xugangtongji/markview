@@ -21,7 +21,6 @@ final class DocumentViewModel: ObservableObject {
     private let fileService = FileService()
     private let renderer: RenderService = PassthroughRenderer()
     private var cancellables = Set<AnyCancellable>()
-    private var ignoreNextContentChange = false
 
     // MARK: - Init
 
@@ -76,7 +75,6 @@ final class DocumentViewModel: ObservableObject {
 
     func openDocument() async {
         guard let result = await fileService.openDocument() else { return }
-        ignoreNextContentChange = true
         content = result.content
         fileURL = result.url
         isModified = false

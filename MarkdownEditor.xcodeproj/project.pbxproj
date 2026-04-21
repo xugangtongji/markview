@@ -1,0 +1,501 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		04FCC7BDB03E9AC5DB646CF8 /* preview.css in Resources */ = {isa = PBXBuildFile; fileRef = A4FE4DE0727AF07EB44C2D2F /* preview.css */; };
+		0708DB9379029221837AD703 /* RenderServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64ADF5E0AAEC152949D41FAC /* RenderServiceTests.swift */; };
+		0C54F02323492F022F05F70F /* highlight.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 3D60B45E50EDF96B967E32D9 /* highlight.min.js */; };
+		406ACDE9384694D06E0B19A1 /* RenderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20E0F8DB45F028C652F8C17 /* RenderService.swift */; };
+		44071A816C7DA46E51C4C5EE /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74A050CE0D0294B0B6278F2B /* EditorView.swift */; };
+		553D97F6B40150253F2EC0C8 /* DocumentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E3D73745087DAE7A6C217B /* DocumentViewModel.swift */; };
+		6389882F9125E721481760BE /* FileServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41CCD85C11DCC14A0B833BA /* FileServiceTests.swift */; };
+		63B8C8F61CD0519805915A84 /* FileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD902080EA0BD2F241B2920C /* FileService.swift */; };
+		785DE5B99BCCB899EEF677D3 /* highlight-github.min.css in Resources */ = {isa = PBXBuildFile; fileRef = 1CBDE99B27E48BDAD83F88FE /* highlight-github.min.css */; };
+		8BB050E98083AA38126CAAC8 /* marked.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 9A6F0FC5F89FF325DE7159FD /* marked.min.js */; };
+		8DF0852F3E63BF572DED3F41 /* MarkdownEditorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176947D8F164DC9495B09066 /* MarkdownEditorApp.swift */; };
+		9D89EB90AE62A1677EDE4858 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9B583FEA2240924E3E652F /* ContentView.swift */; };
+		A277CB18989C67AAAC995F24 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC50D45EF302F243FC8FA408 /* StatusBarView.swift */; };
+		AD8CE50151D6505BAE5766B4 /* PreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371AD5E138DBC5FE6F19FFE8 /* PreviewView.swift */; };
+		DCB72A793289C1169C817445 /* DocumentViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DF0B03198694B8D00C522EE /* DocumentViewModelTests.swift */; };
+		EA008FA208CD24A75C34A8AB /* preview-template.html in Resources */ = {isa = PBXBuildFile; fileRef = 578D2FB3B5E5C25488C28312 /* preview-template.html */; };
+		F032527764FA38F09479ABF9 /* FileCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38A0D881F5BE15DAFCACDDC6 /* FileCommands.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		478BDA858AC4CB9AF3389EBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4DB4F261C0AA1A1C0A5CC50 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3CA2139426DA226DCC0051C8;
+			remoteInfo = MarkdownEditor;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		176947D8F164DC9495B09066 /* MarkdownEditorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditorApp.swift; sourceTree = "<group>"; };
+		1CBDE99B27E48BDAD83F88FE /* highlight-github.min.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "highlight-github.min.css"; sourceTree = "<group>"; };
+		371AD5E138DBC5FE6F19FFE8 /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
+		38A0D881F5BE15DAFCACDDC6 /* FileCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCommands.swift; sourceTree = "<group>"; };
+		397899383C3948EE1EF25587 /* MarkdownEditorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MarkdownEditorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D60B45E50EDF96B967E32D9 /* highlight.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = highlight.min.js; sourceTree = "<group>"; };
+		4B9B583FEA2240924E3E652F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		4DF0B03198694B8D00C522EE /* DocumentViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentViewModelTests.swift; sourceTree = "<group>"; };
+		578D2FB3B5E5C25488C28312 /* preview-template.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "preview-template.html"; sourceTree = "<group>"; };
+		64ADF5E0AAEC152949D41FAC /* RenderServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderServiceTests.swift; sourceTree = "<group>"; };
+		74A050CE0D0294B0B6278F2B /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
+		9A6F0FC5F89FF325DE7159FD /* marked.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = marked.min.js; sourceTree = "<group>"; };
+		A20E0F8DB45F028C652F8C17 /* RenderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderService.swift; sourceTree = "<group>"; };
+		A4FE4DE0727AF07EB44C2D2F /* preview.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = preview.css; sourceTree = "<group>"; };
+		B7B4206DF36D6DE5F8B6A115 /* MarkdownEditor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MarkdownEditor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8E3D73745087DAE7A6C217B /* DocumentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentViewModel.swift; sourceTree = "<group>"; };
+		D41CCD85C11DCC14A0B833BA /* FileServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileServiceTests.swift; sourceTree = "<group>"; };
+		DD902080EA0BD2F241B2920C /* FileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileService.swift; sourceTree = "<group>"; };
+		FC50D45EF302F243FC8FA408 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		3089FB8C83BD21F1E68A7D9D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1CBDE99B27E48BDAD83F88FE /* highlight-github.min.css */,
+				3D60B45E50EDF96B967E32D9 /* highlight.min.js */,
+				9A6F0FC5F89FF325DE7159FD /* marked.min.js */,
+				578D2FB3B5E5C25488C28312 /* preview-template.html */,
+				A4FE4DE0727AF07EB44C2D2F /* preview.css */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		382B0F9ADAA924A7C5FCA6DE /* MarkdownEditor */ = {
+			isa = PBXGroup;
+			children = (
+				827E4ECE4A182695A497B6CD /* App */,
+				3089FB8C83BD21F1E68A7D9D /* Resources */,
+				A47DDF47FB59C1D0F1CFD354 /* Services */,
+				73F5021B51A6BB04E0817FC4 /* ViewModels */,
+				BC8503F56A00B4B2B6393CA1 /* Views */,
+			);
+			path = MarkdownEditor;
+			sourceTree = "<group>";
+		};
+		3F01BFAF62F00413E114664F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B7B4206DF36D6DE5F8B6A115 /* MarkdownEditor.app */,
+				397899383C3948EE1EF25587 /* MarkdownEditorTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6D97F1538DA47CE3779EADC7 = {
+			isa = PBXGroup;
+			children = (
+				382B0F9ADAA924A7C5FCA6DE /* MarkdownEditor */,
+				B1ED448EA40E32AEE2E6A07D /* MarkdownEditorTests */,
+				3F01BFAF62F00413E114664F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		73F5021B51A6BB04E0817FC4 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				C8E3D73745087DAE7A6C217B /* DocumentViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		827E4ECE4A182695A497B6CD /* App */ = {
+			isa = PBXGroup;
+			children = (
+				38A0D881F5BE15DAFCACDDC6 /* FileCommands.swift */,
+				176947D8F164DC9495B09066 /* MarkdownEditorApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A47DDF47FB59C1D0F1CFD354 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				DD902080EA0BD2F241B2920C /* FileService.swift */,
+				A20E0F8DB45F028C652F8C17 /* RenderService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B1ED448EA40E32AEE2E6A07D /* MarkdownEditorTests */ = {
+			isa = PBXGroup;
+			children = (
+				4DF0B03198694B8D00C522EE /* DocumentViewModelTests.swift */,
+				D41CCD85C11DCC14A0B833BA /* FileServiceTests.swift */,
+				64ADF5E0AAEC152949D41FAC /* RenderServiceTests.swift */,
+			);
+			path = MarkdownEditorTests;
+			sourceTree = "<group>";
+		};
+		BC8503F56A00B4B2B6393CA1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4B9B583FEA2240924E3E652F /* ContentView.swift */,
+				74A050CE0D0294B0B6278F2B /* EditorView.swift */,
+				371AD5E138DBC5FE6F19FFE8 /* PreviewView.swift */,
+				FC50D45EF302F243FC8FA408 /* StatusBarView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3CA2139426DA226DCC0051C8 /* MarkdownEditor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2ADAB0B6E28651D018EB3DC1 /* Build configuration list for PBXNativeTarget "MarkdownEditor" */;
+			buildPhases = (
+				7155CA5D99E0D119DE1263D1 /* Sources */,
+				F06E2A61ED185AB0DC4B2795 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MarkdownEditor;
+			packageProductDependencies = (
+			);
+			productName = MarkdownEditor;
+			productReference = B7B4206DF36D6DE5F8B6A115 /* MarkdownEditor.app */;
+			productType = "com.apple.product-type.application";
+		};
+		57AEC11D133DAD5D042F87DD /* MarkdownEditorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3BF7E453430D1EB7706F1684 /* Build configuration list for PBXNativeTarget "MarkdownEditorTests" */;
+			buildPhases = (
+				3167C58BC871DBC60963F101 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A0C56BEE76D2C9943C6EC48F /* PBXTargetDependency */,
+			);
+			name = MarkdownEditorTests;
+			packageProductDependencies = (
+			);
+			productName = MarkdownEditorTests;
+			productReference = 397899383C3948EE1EF25587 /* MarkdownEditorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F4DB4F261C0AA1A1C0A5CC50 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					3CA2139426DA226DCC0051C8 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 1BF5A9A4AD592EB950441F7F /* Build configuration list for PBXProject "MarkdownEditor" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 6D97F1538DA47CE3779EADC7;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 3F01BFAF62F00413E114664F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3CA2139426DA226DCC0051C8 /* MarkdownEditor */,
+				57AEC11D133DAD5D042F87DD /* MarkdownEditorTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F06E2A61ED185AB0DC4B2795 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				785DE5B99BCCB899EEF677D3 /* highlight-github.min.css in Resources */,
+				0C54F02323492F022F05F70F /* highlight.min.js in Resources */,
+				8BB050E98083AA38126CAAC8 /* marked.min.js in Resources */,
+				EA008FA208CD24A75C34A8AB /* preview-template.html in Resources */,
+				04FCC7BDB03E9AC5DB646CF8 /* preview.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3167C58BC871DBC60963F101 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DCB72A793289C1169C817445 /* DocumentViewModelTests.swift in Sources */,
+				6389882F9125E721481760BE /* FileServiceTests.swift in Sources */,
+				0708DB9379029221837AD703 /* RenderServiceTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7155CA5D99E0D119DE1263D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9D89EB90AE62A1677EDE4858 /* ContentView.swift in Sources */,
+				553D97F6B40150253F2EC0C8 /* DocumentViewModel.swift in Sources */,
+				44071A816C7DA46E51C4C5EE /* EditorView.swift in Sources */,
+				F032527764FA38F09479ABF9 /* FileCommands.swift in Sources */,
+				63B8C8F61CD0519805915A84 /* FileService.swift in Sources */,
+				8DF0852F3E63BF572DED3F41 /* MarkdownEditorApp.swift in Sources */,
+				AD8CE50151D6505BAE5766B4 /* PreviewView.swift in Sources */,
+				406ACDE9384694D06E0B19A1 /* RenderService.swift in Sources */,
+				A277CB18989C67AAAC995F24 /* StatusBarView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A0C56BEE76D2C9943C6EC48F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3CA2139426DA226DCC0051C8 /* MarkdownEditor */;
+			targetProxy = 478BDA858AC4CB9AF3389EBF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		481D9F727B1BEE9DBBFF394E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		919CE1A28C5571832F9973CA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		B61DC577E0B9CF833D77945F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.markview.MarkdownEditorTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MarkdownEditor.app/Contents/MacOS/MarkdownEditor";
+			};
+			name = Release;
+		};
+		D16A09CFC9BB180935CD4836 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.markview.MarkdownEditorTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MarkdownEditor.app/Contents/MacOS/MarkdownEditor";
+			};
+			name = Debug;
+		};
+		EFE7ECA928809972E2795B31 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MarkdownEditor/MarkdownEditor.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.markview.MarkdownEditor;
+				PRODUCT_NAME = MarkdownEditor;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		F515ADFD0ECDA9D56515BC35 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MarkdownEditor/MarkdownEditor.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.markview.MarkdownEditor;
+				PRODUCT_NAME = MarkdownEditor;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1BF5A9A4AD592EB950441F7F /* Build configuration list for PBXProject "MarkdownEditor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				481D9F727B1BEE9DBBFF394E /* Debug */,
+				919CE1A28C5571832F9973CA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		2ADAB0B6E28651D018EB3DC1 /* Build configuration list for PBXNativeTarget "MarkdownEditor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F515ADFD0ECDA9D56515BC35 /* Debug */,
+				EFE7ECA928809972E2795B31 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3BF7E453430D1EB7706F1684 /* Build configuration list for PBXNativeTarget "MarkdownEditorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D16A09CFC9BB180935CD4836 /* Debug */,
+				B61DC577E0B9CF833D77945F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F4DB4F261C0AA1A1C0A5CC50 /* Project object */;
+}
