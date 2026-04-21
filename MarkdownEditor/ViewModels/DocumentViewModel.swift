@@ -166,6 +166,7 @@ final class DocumentViewModel: ObservableObject {
               let range = Range(current, in: content) else { return }
         content = content.replacingCharacters(in: range, with: replaceText)
         isModified = true
+        findResult = nil
         findNext()
     }
 
