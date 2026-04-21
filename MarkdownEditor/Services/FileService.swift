@@ -21,6 +21,7 @@ struct FileService {
         return (content, url)
     }
 
+    @MainActor
     func openDocument(at url: URL) -> (content: String, url: URL)? {
         guard let content = read(from: url) else { return nil }
         NSDocumentController.shared.noteNewRecentDocumentURL(url)
