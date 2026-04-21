@@ -1,0 +1,128 @@
+:root {
+  --bg: #ffffff;
+  --text: #24292e;
+  --link: #0366d6;
+  --border: #e1e4e8;
+  --code-bg: #f6f8fa;
+  --blockquote-border: #dfe2e5;
+  --blockquote-text: #6a737d;
+  --table-header-bg: #f6f8fa;
+  --table-row-alt: #fafafa;
+  --hr: #e1e4e8;
+}
+
+[data-theme="dark"] {
+  --bg: #0d1117;
+  --text: #c9d1d9;
+  --link: #58a6ff;
+  --border: #30363d;
+  --code-bg: #161b22;
+  --blockquote-border: #30363d;
+  --blockquote-text: #8b949e;
+  --table-header-bg: #161b22;
+  --table-row-alt: #0d1117;
+  --hr: #30363d;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  transition: background 0.15s, color 0.15s;
+}
+
+.markdown-body {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 40px;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+h1 { font-size: 2em; padding-bottom: 0.3em; border-bottom: 1px solid var(--border); }
+h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.25em; }
+h4 { font-size: 1em; }
+h5 { font-size: 0.875em; }
+h6 { font-size: 0.85em; color: var(--blockquote-text); }
+
+/* Paragraphs & lists */
+p { margin-bottom: 16px; }
+ul, ol { margin-bottom: 16px; padding-left: 2em; }
+li { margin: 4px 0; }
+li > p { margin-bottom: 0; }
+
+/* Links */
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Code */
+code {
+  font-family: "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.875em;
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 0.2em 0.4em;
+}
+pre {
+  margin-bottom: 16px;
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 16px;
+  overflow-x: auto;
+}
+pre code {
+  padding: 0;
+  background: transparent;
+  font-size: 0.875em;
+  line-height: 1.45;
+}
+
+/* Blockquote */
+blockquote {
+  margin: 0 0 16px 0;
+  padding: 0 1em;
+  color: var(--blockquote-text);
+  border-left: 0.25em solid var(--blockquote-border);
+}
+
+/* Tables */
+table {
+  width: 100%;
+  margin-bottom: 16px;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 6px 13px;
+  border: 1px solid var(--border);
+}
+th { background: var(--table-header-bg); font-weight: 600; }
+tr:nth-child(even) { background: var(--table-row-alt); }
+
+/* Task lists */
+input[type="checkbox"] {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* HR */
+hr {
+  margin: 24px 0;
+  border: none;
+  border-top: 1px solid var(--hr);
+}
+
+/* Images */
+img { max-width: 100%; border-radius: 4px; }
+
+/* highlight.js dark-mode override */
+[data-theme="dark"] .hljs { background: var(--code-bg); }
