@@ -34,6 +34,7 @@ targets:
         PRODUCT_NAME: MarkdownEditor
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_STYLE: Automatic
+        GENERATE_INFOPLIST_FILE: YES
 
   MarkdownEditorTests:
     type: bundle.unit-test
@@ -45,3 +46,4 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.markview.MarkdownEditorTests
+        GENERATE_INFOPLIST_FILE: YES
