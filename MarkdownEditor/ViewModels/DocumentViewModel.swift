@@ -12,6 +12,7 @@ final class DocumentViewModel: ObservableObject {
     @Published var cursorLine: Int = 1
     @Published var cursorColumn: Int = 1
     @Published var isDarkMode: Bool = false
+    @Published var showPreview: Bool = true
 
     // Downstream subscribers (e.g. PreviewView) observe this to trigger render.
     @Published private(set) var renderTrigger: String = ""

@@ -37,6 +37,13 @@ struct FileCommands: Commands {
             }
             .keyboardShortcut("s", modifiers: [.command, .shift])
         }
+
+        CommandGroup(after: .sidebar) {
+            Button(viewModel.showPreview ? "隐藏预览" : "显示预览") {
+                viewModel.showPreview.toggle()
+            }
+            .keyboardShortcut("p", modifiers: [.command, .shift])
+        }
     }
 
     // MARK: - Helpers

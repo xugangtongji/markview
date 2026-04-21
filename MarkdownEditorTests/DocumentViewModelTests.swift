@@ -49,6 +49,17 @@ final class DocumentViewModelTests: XCTestCase {
         XCTAssertEqual(vm.cursorColumn, 12)
     }
 
+    func testShowPreviewDefaultsTrue() {
+        XCTAssertTrue(vm.showPreview)
+    }
+
+    func testTogglePreview() {
+        vm.showPreview = false
+        XCTAssertFalse(vm.showPreview)
+        vm.showPreview = true
+        XCTAssertTrue(vm.showPreview)
+    }
+
     func testRenderTriggerDebounce() {
         let expectation = expectation(description: "renderTrigger fires after debounce")
         var fired = false
