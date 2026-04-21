@@ -17,6 +17,16 @@ final class DocumentViewModel: ObservableObject {
     // Downstream subscribers (e.g. PreviewView) observe this to trigger render.
     @Published private(set) var renderTrigger: String = ""
 
+    var wordCount: Int {
+        content.components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .count
+    }
+
+    var lineCount: Int {
+        content.isEmpty ? 1 : content.components(separatedBy: "\n").count
+    }
+
     // MARK: - Private
 
     private let fileService = FileService()

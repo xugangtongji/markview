@@ -60,6 +60,29 @@ final class DocumentViewModelTests: XCTestCase {
         XCTAssertTrue(vm.showPreview)
     }
 
+    func testWordCountEmpty() {
+        XCTAssertEqual(vm.wordCount, 0)
+    }
+
+    func testWordCountBasic() {
+        vm.updateContent("Hello world\nFoo bar")
+        XCTAssertEqual(vm.wordCount, 4)
+    }
+
+    func testWordCountChineseMixed() {
+        vm.updateContent("你好 world")
+        XCTAssertEqual(vm.wordCount, 2)
+    }
+
+    func testLineCountEmpty() {
+        XCTAssertEqual(vm.lineCount, 1)
+    }
+
+    func testLineCountMultiline() {
+        vm.updateContent("line1\nline2\nline3")
+        XCTAssertEqual(vm.lineCount, 3)
+    }
+
     func testRenderTriggerDebounce() {
         let expectation = expectation(description: "renderTrigger fires after debounce")
         var fired = false
