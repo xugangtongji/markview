@@ -34,8 +34,8 @@ struct EditorView: NSViewRepresentable {
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
         let textView = context.coordinator.textView
 
-        // Sync content
-        if textView.string != viewModel.content {
+        // Sync content — skip during IME composition to avoid breaking candidate window
+        if textView.string != viewModel.content && !textView.hasMarkedText() {
             let sel = textView.selectedRange()
             textView.string = viewModel.content
             let safeRange = NSRange(location: min(sel.location, viewModel.content.utf16.count), length: 0)

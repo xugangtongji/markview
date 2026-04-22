@@ -12,7 +12,17 @@
 <body>
 <article id="content" class="markdown-body"></article>
 <script>
-  marked.use({ gfm: true, breaks: false });
+  // Custom renderer: add id attributes to headings for TOC scroll anchors
+  const headingRenderer = {
+    heading(text, level) {
+      const slug = text.toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w-]/g, '');
+      return '<h' + level + ' id="' + slug + '">' + text + '</h' + level + '>\n';
+    }
+  };
+
+  marked.use({ gfm: true, breaks: false, renderer: headingRenderer });
 
   window.__updateContent = function(b64) {
     try {
