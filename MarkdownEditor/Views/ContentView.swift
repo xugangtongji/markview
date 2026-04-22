@@ -37,7 +37,7 @@ struct ContentView: View {
                         Button {
                             viewModel.showPreview.toggle()
                         } label: {
-                            Image(systemName: viewModel.showPreview ? "sidebar.right" : "sidebar.right.fill")
+                            Image(systemName: viewModel.showPreview ? "eye.slash" : "eye")
                                 .font(.system(size: 14, weight: .medium))
                                 .padding(8)
                                 .background(.ultraThinMaterial)
