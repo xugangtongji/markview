@@ -1,0 +1,133 @@
+<h2>左侧导航栏布局方案</h2>
+<p class="subtitle">选择一个整体布局方向</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#1a1a2e;border-radius:6px">
+      <div style="display:flex;height:220px;gap:4px;font-size:10px;color:#aaa;font-family:monospace">
+        <!-- Sidebar -->
+        <div style="width:140px;background:#16213e;border-radius:4px;display:flex;flex-direction:column;overflow:hidden">
+          <div style="padding:8px 10px;background:#0f3460;color:#e2e2e2;font-size:11px;font-weight:600;display:flex;gap:6px;align-items:center">
+            <span style="background:#4a9eff;border-radius:3px;padding:1px 5px;font-size:9px">📁</span>
+            <span style="background:#555;border-radius:3px;padding:1px 5px;font-size:9px">目录</span>
+          </div>
+          <div style="padding:6px 4px;flex:1;overflow:hidden">
+            <div style="padding:3px 8px;color:#7ec8e3;display:flex;align-items:center;gap:4px"><span>📂</span> workspace</div>
+            <div style="padding:3px 8px 3px 22px;color:#ccc;display:flex;align-items:center;gap:4px"><span>📄</span> README.md</div>
+            <div style="padding:3px 8px 3px 22px;color:#4a9eff;background:#1e3a5f;border-radius:3px;display:flex;align-items:center;gap:4px"><span>📄</span> notes.md</div>
+            <div style="padding:3px 8px 3px 22px;color:#ccc;display:flex;align-items:center;gap:4px"><span>📄</span> todo.md</div>
+            <div style="padding:3px 8px;color:#7ec8e3;display:flex;align-items:center;gap:4px"><span>📂</span> docs/</div>
+          </div>
+        </div>
+        <!-- Editor -->
+        <div style="flex:1;background:#0d1117;border-radius:4px;padding:8px;color:#c9d1d9;font-size:9px;line-height:1.6">
+          <div style="color:#ff79c6"># My Notes</div>
+          <div style="color:#8be9fd">## Section 1</div>
+          <div>Some content here...</div>
+        </div>
+        <!-- Preview -->
+        <div style="flex:1;background:#161b22;border-radius:4px;padding:8px;font-size:9px;line-height:1.6">
+          <div style="color:#e2e2e2;font-size:13px;font-weight:700;margin-bottom:4px">My Notes</div>
+          <div style="color:#aaa;font-size:10px;font-weight:600;margin:4px 0">Section 1</div>
+          <div style="color:#ccc">Some content here...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>方案 A — 固定宽度侧边栏</h3>
+      <p>固定 200px 左栏，顶部有"文件"/"目录"两个 Tab 切换。与现有 HSplitView 并列，整体布局为三栏。</p>
+      <div class="pros-cons" style="font-size:12px">
+        <div class="pros"><h4>优点</h4><ul><li>布局稳定，始终可见</li><li>实现简单</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>窄屏下挤占编辑区</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#1a1a2e;border-radius:6px">
+      <div style="display:flex;height:220px;gap:4px;font-size:10px;color:#aaa;font-family:monospace">
+        <!-- Collapsed sidebar indicator -->
+        <div style="width:28px;background:#16213e;border-radius:4px;display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:12px">
+          <div style="color:#4a9eff;font-size:14px" title="文件">📁</div>
+          <div style="color:#555;font-size:14px" title="目录">☰</div>
+        </div>
+        <!-- Editor -->
+        <div style="flex:1;background:#0d1117;border-radius:4px;padding:8px;color:#c9d1d9;font-size:9px;line-height:1.6">
+          <div style="color:#ff79c6"># My Notes</div>
+          <div style="color:#8be9fd">## Section 1</div>
+          <div>Some content here...</div>
+        </div>
+        <!-- Preview -->
+        <div style="flex:1;background:#161b22;border-radius:4px;padding:8px;font-size:9px;line-height:1.6">
+          <div style="color:#e2e2e2;font-size:13px;font-weight:700;margin-bottom:4px">My Notes</div>
+          <div style="color:#aaa;font-size:10px;font-weight:600;margin:4px 0">Section 1</div>
+          <div style="color:#ccc">Some content here...</div>
+        </div>
+      </div>
+      <!-- Expanded overlay state shown below -->
+      <div style="margin-top:8px;display:flex;height:80px;gap:4px;font-size:9px;opacity:0.7">
+        <div style="width:28px;background:#16213e;border-radius:4px"></div>
+        <div style="position:relative;flex:1">
+          <div style="position:absolute;left:0;top:0;bottom:0;width:150px;background:#16213e;border-radius:4px;z-index:1;padding:6px;color:#ccc;font-size:8px;box-shadow:4px 0 8px rgba(0,0,0,0.4)">
+            <div style="color:#4a9eff;margin-bottom:4px">📂 workspace</div>
+            <div style="padding-left:10px">📄 README.md</div>
+            <div style="padding-left:10px;color:#4a9eff">📄 notes.md</div>
+          </div>
+          <div style="background:#0d1117;border-radius:4px;width:100%;height:100%;opacity:0.4"></div>
+        </div>
+        <div style="flex:1;background:#161b22;border-radius:4px;opacity:0.4"></div>
+      </div>
+      <div style="text-align:center;font-size:9px;color:#666;margin-top:2px">↑ 折叠态（左）/ 展开态（右，浮层）</div>
+    </div>
+    <div class="card-body">
+      <h3>方案 B — 图标栏 + 浮层展开</h3>
+      <p>默认只显示窄图标栏（28px），点击图标展开为浮层面板，不挤占编辑区。类似 VS Code 侧边栏。</p>
+      <div class="pros-cons" style="font-size:12px">
+        <div class="pros"><h4>优点</h4><ul><li>编辑区不受挤压</li><li>体验现代</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>实现较复杂</li><li>浮层遮挡内容</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#1a1a2e;border-radius:6px">
+      <div style="display:flex;height:220px;gap:4px;font-size:10px;color:#aaa;font-family:monospace">
+        <!-- Resizable sidebar -->
+        <div style="width:160px;background:#16213e;border-radius:4px;display:flex;flex-direction:column;overflow:hidden">
+          <div style="padding:6px 10px;background:#0f3460;color:#e2e2e2;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-weight:600">文件</span>
+            <span style="color:#555;cursor:pointer">✕</span>
+          </div>
+          <div style="padding:4px;flex:1">
+            <div style="padding:3px 6px;color:#7ec8e3;font-size:9px">📂 workspace</div>
+            <div style="padding:3px 6px 3px 18px;color:#4a9eff;background:#1e3a5f;border-radius:3px;font-size:9px">📄 notes.md</div>
+            <div style="padding:3px 6px 3px 18px;color:#ccc;font-size:9px">📄 todo.md</div>
+          </div>
+        </div>
+        <!-- Drag handle -->
+        <div style="width:4px;background:#333;border-radius:2px;cursor:col-resize;display:flex;align-items:center;justify-content:center">
+          <div style="width:2px;height:20px;background:#555;border-radius:1px"></div>
+        </div>
+        <!-- Editor + preview in their own HSplitView -->
+        <div style="flex:1;background:#0d1117;border-radius:4px;padding:8px;color:#c9d1d9;font-size:9px;line-height:1.6">
+          <div style="color:#ff79c6"># My Notes</div>
+          <div>Some content...</div>
+        </div>
+        <div style="flex:1;background:#161b22;border-radius:4px;padding:8px;font-size:9px;line-height:1.6">
+          <div style="color:#e2e2e2;font-size:12px;font-weight:700">My Notes</div>
+          <div style="color:#ccc;margin-top:4px">Some content...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>方案 C — 可拖拽调宽侧边栏（推荐）</h3>
+      <p>通过 <code>HSplitView</code> 统一管理三栏（侧边栏 | 编辑 | 预览），侧边栏可拖拽调宽、可折叠为 0。Cmd+\\ 切换显示。与现有架构最契合。</p>
+      <div class="pros-cons" style="font-size:12px">
+        <div class="pros"><h4>优点</h4><ul><li>原生 macOS 体验</li><li>复用现有 HSplitView</li><li>可完全收起</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>三栏同时存在时较窄</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
