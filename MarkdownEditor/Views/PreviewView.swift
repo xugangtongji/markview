@@ -54,6 +54,33 @@ struct PreviewView: NSViewRepresentable {
         var lastRendered: String = UUID().uuidString  // force first inject
         var pendingTheme: String = "light"
 
+        override init() {
+            super.init()
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(editorDidScroll(_:)),
+                name: .editorDidScroll,
+                object: nil
+            )
+        }
+
+        deinit {
+            NotificationCenter.default.removeObserver(self)
+        }
+
+        @objc func editorDidScroll(_ notification: Notification) {
+            guard isReady,
+                  let fraction = notification.userInfo?["fraction"] as? Double else { return }
+            // Scroll preview proportionally to editor scroll position
+            let js = """
+                (function(){
+                  var h = document.documentElement.scrollHeight - window.innerHeight;
+                  if (h > 0) window.scrollTo({ top: h * \(fraction), behavior: 'auto' });
+                })();
+                """
+            webView?.evaluateJavaScript(js, completionHandler: nil)
+        }
+
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             isReady = true
             applyTheme(pendingTheme)

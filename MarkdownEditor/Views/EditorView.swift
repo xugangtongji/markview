@@ -1,6 +1,11 @@
 import AppKit
 import SwiftUI
 
+extension Notification.Name {
+    /// Posted by EditorView when the user scrolls; userInfo["fraction"] is a Double in [0,1].
+    static let editorDidScroll = Notification.Name("MarkdownEditor.editorDidScroll")
+}
+
 struct EditorView: NSViewRepresentable {
     @EnvironmentObject var viewModel: DocumentViewModel
 
@@ -28,6 +33,15 @@ struct EditorView: NSViewRepresentable {
         scroll.hasHorizontalScroller = false
         scroll.documentView = textView
         scroll.autohidesScrollers = true
+
+        // Observe live scroll events to drive preview sync
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(Coordinator.scrollViewDidScroll(_:)),
+            name: NSScrollView.didLiveScrollNotification,
+            object: scroll
+        )
+
         return scroll
     }
 
@@ -82,6 +96,24 @@ struct EditorView: NSViewRepresentable {
 
         init(viewModel: DocumentViewModel) {
             self.viewModel = viewModel
+        }
+
+        deinit {
+            NotificationCenter.default.removeObserver(self)
+        }
+
+        @objc func scrollViewDidScroll(_ notification: Notification) {
+            guard let scrollView = notification.object as? NSScrollView,
+                  let docView = scrollView.documentView else { return }
+            let visible = scrollView.documentVisibleRect
+            let total = docView.bounds.height - visible.height
+            guard total > 1 else { return }
+            let fraction = max(0, min(1, visible.minY / total))
+            NotificationCenter.default.post(
+                name: .editorDidScroll,
+                object: nil,
+                userInfo: ["fraction": fraction]
+            )
         }
 
         func textDidChange(_ notification: Notification) {

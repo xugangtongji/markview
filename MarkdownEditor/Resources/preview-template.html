@@ -12,17 +12,7 @@
 <body>
 <article id="content" class="markdown-body"></article>
 <script>
-  // Custom renderer: add id attributes to headings for TOC scroll anchors
-  const headingRenderer = {
-    heading(text, level) {
-      const slug = text.toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^\w-]/g, '');
-      return '<h' + level + ' id="' + slug + '">' + text + '</h' + level + '>\n';
-    }
-  };
-
-  marked.use({ gfm: true, breaks: false, renderer: headingRenderer });
+  marked.use({ gfm: true, breaks: false });
 
   window.__updateContent = function(b64) {
     try {
@@ -30,8 +20,18 @@
       var bytes = new Uint8Array(raw.length);
       for (var i = 0; i < raw.length; i++) { bytes[i] = raw.charCodeAt(i); }
       var text = new TextDecoder('utf-8').decode(bytes);
-      document.getElementById('content').innerHTML = marked.parse(text);
-      document.querySelectorAll('pre code').forEach(function(block) {
+      var content = document.getElementById('content');
+      content.innerHTML = marked.parse(text);
+
+      // Add id to headings after render (version-stable, no marked renderer API dependency)
+      content.querySelectorAll('h1, h2, h3, h4').forEach(function(h) {
+        var slug = h.textContent.toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w-]/g, '');
+        if (slug) h.id = slug;
+      });
+
+      content.querySelectorAll('pre code').forEach(function(block) {
         hljs.highlightElement(block);
       });
     } catch(e) {
