@@ -1,0 +1,73 @@
+<h2>侧边栏：文件与 TOC 如何切换？</h2>
+<p class="subtitle">选择 Tab 的呈现方式</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#1a1a2e;border-radius:6px">
+      <div style="width:180px;background:#16213e;border-radius:6px;overflow:hidden;font-family:monospace;font-size:10px">
+        <!-- Segmented control tabs -->
+        <div style="padding:8px;background:#0f3460">
+          <div style="display:flex;background:#0a2444;border-radius:5px;padding:2px;gap:2px">
+            <div style="flex:1;text-align:center;padding:4px;background:#4a9eff;border-radius:4px;color:#fff;font-size:10px;font-weight:600">📁 文件</div>
+            <div style="flex:1;text-align:center;padding:4px;color:#888;font-size:10px">☰ 目录</div>
+          </div>
+        </div>
+        <div style="padding:8px;color:#ccc;line-height:1.8">
+          <div style="color:#7ec8e3">📂 workspace</div>
+          <div style="padding-left:14px;color:#4a9eff;background:#1e3a5f;border-radius:3px;padding:2px 4px 2px 18px">📄 notes.md</div>
+          <div style="padding-left:14px;padding:2px 4px 2px 18px;color:#aaa">📄 README.md</div>
+          <div style="padding-left:14px;padding:2px 4px 2px 18px;color:#aaa">📄 todo.md</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — 分段控件（Segmented Control）</h3>
+      <p>顶部两段式切换按钮，macOS 原生风格，一眼可见当前模式。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#1a1a2e;border-radius:6px">
+      <div style="width:180px;background:#16213e;border-radius:6px;overflow:hidden;font-family:monospace;font-size:10px">
+        <!-- Icon toolbar -->
+        <div style="display:flex;border-bottom:1px solid #2a3a5a;background:#0f3460">
+          <div style="flex:1;text-align:center;padding:8px 4px;color:#4a9eff;border-bottom:2px solid #4a9eff;font-size:13px">📁</div>
+          <div style="flex:1;text-align:center;padding:8px 4px;color:#555;font-size:13px">☰</div>
+          <div style="flex:1;text-align:center;padding:8px 4px;color:#555;font-size:13px">🔖</div>
+        </div>
+        <div style="padding:8px;color:#ccc;line-height:1.8">
+          <div style="color:#7ec8e3">📂 workspace</div>
+          <div style="padding:2px 4px 2px 18px;color:#4a9eff;background:#1e3a5f;border-radius:3px">📄 notes.md</div>
+          <div style="padding:2px 4px 2px 18px;color:#aaa">📄 README.md</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — 图标 Tab 栏</h3>
+      <p>顶部图标式 Tab，可扩展（未来加更多面板），下划线指示当前选中。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px;background:#1a1a2e;border-radius:6px">
+      <div style="width:180px;background:#16213e;border-radius:6px;overflow:hidden;font-family:monospace;font-size:10px">
+        <!-- Header with label + switch button -->
+        <div style="padding:8px 10px;background:#0f3460;display:flex;align-items:center;justify-content:space-between">
+          <span style="color:#e2e2e2;font-weight:600;font-size:11px">📁 文件</span>
+          <span style="color:#4a9eff;font-size:10px;cursor:pointer;background:#1e3a5f;padding:2px 6px;border-radius:3px">TOC ↕</span>
+        </div>
+        <div style="padding:8px;color:#ccc;line-height:1.8">
+          <div style="color:#7ec8e3">📂 workspace</div>
+          <div style="padding:2px 4px 2px 18px;color:#4a9eff;background:#1e3a5f;border-radius:3px">📄 notes.md</div>
+          <div style="padding:2px 4px 2px 18px;color:#aaa">📄 README.md</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — 标题栏内联切换按钮</h3>
+      <p>标题显示当前模式，右侧有小按钮一键切换。最简洁，节省垂直空间。</p>
+    </div>
+  </div>
+
+</div>

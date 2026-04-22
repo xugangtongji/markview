@@ -13,6 +13,16 @@ struct StatusBarView: View {
             Text("\(viewModel.content.count) 个字符")
                 .monospacedDigit()
 
+            Divider().frame(height: 12)
+
+            Text("\(viewModel.wordCount) 词")
+                .monospacedDigit()
+
+            Divider().frame(height: 12)
+
+            Text("\(viewModel.lineCount) 行")
+                .monospacedDigit()
+
             Spacer()
 
             Text(viewModel.isModified ? "未保存" : "已保存")

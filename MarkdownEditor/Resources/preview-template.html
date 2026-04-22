@@ -20,8 +20,18 @@
       var bytes = new Uint8Array(raw.length);
       for (var i = 0; i < raw.length; i++) { bytes[i] = raw.charCodeAt(i); }
       var text = new TextDecoder('utf-8').decode(bytes);
-      document.getElementById('content').innerHTML = marked.parse(text);
-      document.querySelectorAll('pre code').forEach(function(block) {
+      var content = document.getElementById('content');
+      content.innerHTML = marked.parse(text);
+
+      // Add id to headings after render — version-stable, no marked renderer API dependency.
+      content.querySelectorAll('h1, h2, h3, h4').forEach(function(h) {
+        var slug = h.textContent.toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w-]/g, '');
+        if (slug) h.id = slug;
+      });
+
+      content.querySelectorAll('pre code').forEach(function(block) {
         hljs.highlightElement(block);
       });
     } catch(e) {
@@ -32,6 +42,50 @@
   window.__setTheme = function(theme) {
     document.documentElement.setAttribute('data-theme', theme);
   };
+
+  // ── Scroll sync ──────────────────────────────────────────────────────────
+
+  // Total scrollable height helper — works across WKWebView/Safari variants.
+  function __scrollHeight() {
+    return Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight
+    ) - window.innerHeight;
+  }
+
+  // Called by Swift (EditorView → Preview direction).
+  // Uses window.scrollTo() — the only reliable scroll API in WKWebView on macOS.
+  // Sets __suppressScrollMsg before scrolling so the resulting scroll event is
+  // not echoed back to Swift.
+  window.__suppressScrollMsg = false;
+  window.__scrollTo = function(fraction) {
+    var h = __scrollHeight();
+    if (h <= 0) return;
+    window.__suppressScrollMsg = true;
+    window.scrollTo(0, h * fraction);           // positional form, most compatible
+    setTimeout(function() { window.__suppressScrollMsg = false; }, 150);
+  };
+
+  // Sends scroll position to Swift (Preview → Editor direction).
+  // Uses window.scrollY — standard cross-browser scroll position.
+  // rAF-throttled to one message per frame; skipped while suppressed.
+  var __scrollRaf = null;
+  window.addEventListener('scroll', function() {
+    if (window.__suppressScrollMsg) return;
+    if (__scrollRaf) return;
+    __scrollRaf = requestAnimationFrame(function() {
+      __scrollRaf = null;
+      if (window.__suppressScrollMsg) return;
+      var h = __scrollHeight();
+      if (h <= 0) return;
+      var fraction = window.scrollY / h;        // scrollY = standard pageYOffset
+      if (window.webkit &&
+          window.webkit.messageHandlers &&
+          window.webkit.messageHandlers.scrollSync) {
+        window.webkit.messageHandlers.scrollSync.postMessage(fraction);
+      }
+    });
+  }, { passive: true });
 </script>
 </body>
 </html>

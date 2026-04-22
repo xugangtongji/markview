@@ -2,6 +2,7 @@ import SwiftUI
 
 struct FileCommands: Commands {
     let viewModel: DocumentViewModel
+    let sidebarVM: SidebarViewModel
 
     var body: some Commands {
         CommandGroup(replacing: .newItem) {
@@ -37,6 +38,43 @@ struct FileCommands: Commands {
             }
             .keyboardShortcut("s", modifiers: [.command, .shift])
         }
+
+        CommandGroup(replacing: .pasteboard) {
+            Button("剪切")  { NSApp.sendAction(#selector(NSText.cut(_:)),       to: nil, from: nil) }
+                .keyboardShortcut("x")
+            Button("拷贝")  { NSApp.sendAction(#selector(NSText.copy(_:)),      to: nil, from: nil) }
+                .keyboardShortcut("c")
+            Button("粘贴")  { NSApp.sendAction(#selector(NSText.paste(_:)),     to: nil, from: nil) }
+                .keyboardShortcut("v")
+            Button("全选")  { NSApp.sendAction(#selector(NSText.selectAll(_:)), to: nil, from: nil) }
+                .keyboardShortcut("a")
+        }
+
+        CommandGroup(after: .sidebar) {
+            Button(sidebarVM.isVisible ? "隐藏侧边栏" : "显示侧边栏") {
+                sidebarVM.isVisible.toggle()
+            }
+            .keyboardShortcut("\\", modifiers: .command)
+
+            Button("打开文件夹…") {
+                Task { await sidebarVM.openWorkspaceFolder() }
+            }
+
+            Divider()
+
+            Button(viewModel.showPreview ? "隐藏预览" : "显示预览") {
+                viewModel.showPreview.toggle()
+            }
+            .keyboardShortcut("p", modifiers: [.command, .shift])
+        }
+
+        CommandGroup(after: .textEditing) {
+            Button("查找/替换") {
+                viewModel.showFindBar.toggle()
+                if !viewModel.showFindBar { viewModel.findResult = nil }
+            }
+            .keyboardShortcut("f", modifiers: .command)
+        }
     }
 
     // MARK: - Helpers
@@ -48,9 +86,7 @@ struct FileCommands: Commands {
         alert.addButton(withTitle: "放弃更改")
         alert.addButton(withTitle: "取消")
         alert.alertStyle = .warning
-        if alert.runModal() == .alertFirstButtonReturn {
-            action()
-        }
+        if alert.runModal() == .alertFirstButtonReturn { action() }
     }
 
     private func confirmDiscardAsync(_ action: @escaping () async -> Void) async {
