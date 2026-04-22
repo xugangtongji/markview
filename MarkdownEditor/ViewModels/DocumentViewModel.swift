@@ -20,6 +20,12 @@ final class DocumentViewModel: ObservableObject {
     @Published var replaceText: String = ""
     @Published var findResult: NSRange? = nil
 
+    // MARK: - TOC Navigation
+    /// Set by TOCView; consumed and reset to nil by EditorView.updateNSView
+    @Published var scrollToLine: Int? = nil
+    /// Set by TOCView; consumed and reset to nil by PreviewView.updateNSView
+    @Published var scrollToHeadingID: String? = nil
+
     // Downstream subscribers (e.g. PreviewView) observe this to trigger render.
     @Published private(set) var renderTrigger: String = ""
 
@@ -36,8 +42,11 @@ final class DocumentViewModel: ObservableObject {
     // MARK: - Private
 
     private let fileService = FileService()
-    private let renderer: RenderService = PassthroughRenderer()
     private var cancellables = Set<AnyCancellable>()
+
+    deinit {
+        cancellables.removeAll()
+    }
 
     // MARK: - Init
 
@@ -47,7 +56,7 @@ final class DocumentViewModel: ObservableObject {
             .debounce(for: .milliseconds(200), scheduler: RunLoop.main)
             .sink { [weak self] text in
                 guard let self else { return }
-                self.renderTrigger = self.renderer.render(markdown: text)
+                self.renderTrigger = text
             }
             .store(in: &cancellables)
 
@@ -95,7 +104,7 @@ final class DocumentViewModel: ObservableObject {
         content = result.content
         fileURL = result.url
         isModified = false
-        renderTrigger = renderer.render(markdown: result.content)
+        renderTrigger = result.content
     }
 
     func openDocument(url: URL) {
@@ -103,7 +112,7 @@ final class DocumentViewModel: ObservableObject {
         content = result.content
         fileURL = result.url
         isModified = false
-        renderTrigger = renderer.render(markdown: result.content)
+        renderTrigger = result.content
     }
 
     func saveDocument() async {
