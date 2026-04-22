@@ -33,12 +33,21 @@ struct EditorView: NSViewRepresentable {
 
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
         let textView = context.coordinator.textView
-        guard textView.string != viewModel.content else { return }
-        // Preserve cursor position when content is replaced (e.g. after file open)
-        let sel = textView.selectedRange()
-        textView.string = viewModel.content
-        let safeRange = NSRange(location: min(sel.location, viewModel.content.utf16.count), length: 0)
-        textView.setSelectedRange(safeRange)
+        if textView.string != viewModel.content {
+            let sel = textView.selectedRange()
+            textView.string = viewModel.content
+            let safeRange = NSRange(location: min(sel.location, viewModel.content.utf16.count), length: 0)
+            textView.setSelectedRange(safeRange)
+        }
+        if let range = viewModel.findResult,
+           range != context.coordinator.lastHighlightedRange {
+            context.coordinator.lastHighlightedRange = range
+            textView.setSelectedRange(range)
+            textView.scrollRangeToVisible(range)
+            textView.showFindIndicator(for: range)
+        } else if viewModel.findResult == nil {
+            context.coordinator.lastHighlightedRange = nil
+        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -49,6 +58,7 @@ struct EditorView: NSViewRepresentable {
 
     final class Coordinator: NSObject, NSTextViewDelegate {
         let textView = NSTextView()
+        var lastHighlightedRange: NSRange? = nil
         private weak var viewModel: DocumentViewModel?
 
         init(viewModel: DocumentViewModel) {

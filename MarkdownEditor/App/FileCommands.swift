@@ -44,6 +44,16 @@ struct FileCommands: Commands {
             }
             .keyboardShortcut("p", modifiers: [.command, .shift])
         }
+
+        CommandGroup(after: .textEditing) {
+            Button("查找/替换") {
+                viewModel.showFindBar.toggle()
+                if !viewModel.showFindBar {
+                    viewModel.findResult = nil
+                }
+            }
+            .keyboardShortcut("f", modifiers: .command)
+        }
     }
 
     // MARK: - Helpers
