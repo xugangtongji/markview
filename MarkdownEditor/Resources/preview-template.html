@@ -45,22 +45,30 @@
 
   // ── Scroll sync ──────────────────────────────────────────────────────────
 
+  // Total scrollable height helper — works across WKWebView/Safari variants.
+  function __scrollHeight() {
+    return Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight
+    ) - window.innerHeight;
+  }
+
   // Called by Swift (EditorView → Preview direction).
-  // Sets __suppressScrollMsg so the resulting scroll event is not echoed back.
+  // Uses window.scrollTo() — the only reliable scroll API in WKWebView on macOS.
+  // Sets __suppressScrollMsg before scrolling so the resulting scroll event is
+  // not echoed back to Swift.
   window.__suppressScrollMsg = false;
   window.__scrollTo = function(fraction) {
+    var h = __scrollHeight();
+    if (h <= 0) return;
     window.__suppressScrollMsg = true;
-    var scrollable = document.documentElement;
-    var h = scrollable.scrollHeight - window.innerHeight;
-    if (h > 0) {
-      scrollable.scrollTop = h * fraction;
-    }
-    // Clear suppression after the scroll event has had time to fire (~2 frames).
-    setTimeout(function() { window.__suppressScrollMsg = false; }, 100);
+    window.scrollTo(0, h * fraction);           // positional form, most compatible
+    setTimeout(function() { window.__suppressScrollMsg = false; }, 150);
   };
 
   // Sends scroll position to Swift (Preview → Editor direction).
-  // Debounced to one message per animation frame; skipped when suppressed.
+  // Uses window.scrollY — standard cross-browser scroll position.
+  // rAF-throttled to one message per frame; skipped while suppressed.
   var __scrollRaf = null;
   window.addEventListener('scroll', function() {
     if (window.__suppressScrollMsg) return;
@@ -68,10 +76,9 @@
     __scrollRaf = requestAnimationFrame(function() {
       __scrollRaf = null;
       if (window.__suppressScrollMsg) return;
-      var scrollable = document.documentElement;
-      var h = scrollable.scrollHeight - window.innerHeight;
+      var h = __scrollHeight();
       if (h <= 0) return;
-      var fraction = scrollable.scrollTop / h;
+      var fraction = window.scrollY / h;        // scrollY = standard pageYOffset
       if (window.webkit &&
           window.webkit.messageHandlers &&
           window.webkit.messageHandlers.scrollSync) {

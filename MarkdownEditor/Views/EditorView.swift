@@ -131,11 +131,15 @@ struct EditorView: NSViewRepresentable {
             // Guard: if this scroll was triggered by us (responding to preview), skip it.
             guard !isScrollingFromPreview,
                   let clipView = notification.object as? NSClipView,
-                  let docView = clipView.documentView else { return }
-            let visible = clipView.bounds
-            let total = docView.bounds.height - visible.height
+                  let scrollView = clipView.enclosingScrollView,
+                  let docView = scrollView.documentView else { return }
+            // Use documentVisibleRect (in document coords) + frame.height (set by scroll view)
+            // rather than clipView.bounds — more reliable when NSTextView layout is lazy.
+            let visible = scrollView.documentVisibleRect
+            let docHeight = docView.frame.height
+            let total = docHeight - visible.height
             guard total > 1 else { return }
-            // NSTextView is flipped: minY grows downward, so this fraction is 0→1 top→bottom.
+            // NSTextView is flipped: minY is distance from top → fraction 0→1 = top→bottom.
             let fraction = max(0, min(1, visible.minY / total))
             NotificationCenter.default.post(
                 name: .editorDidScroll,
