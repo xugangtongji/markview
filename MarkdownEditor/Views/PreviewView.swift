@@ -24,17 +24,21 @@ struct PreviewView: NSViewRepresentable {
 
         if coordinator.pendingTheme != theme {
             coordinator.pendingTheme = theme
-            if coordinator.isReady {
-                coordinator.applyTheme(theme)
-            }
+            if coordinator.isReady { coordinator.applyTheme(theme) }
         }
 
         let trigger = viewModel.renderTrigger
         if coordinator.lastRendered != trigger {
             coordinator.lastRendered = trigger
-            if coordinator.isReady {
-                coordinator.inject(markdown: trigger)
-            }
+            if coordinator.isReady { coordinator.inject(markdown: trigger) }
+        }
+
+        // TOC scroll: jump preview to heading anchor
+        if let headingID = viewModel.scrollToHeadingID, coordinator.isReady {
+            let safe = headingID.replacingOccurrences(of: "'", with: "\\'")
+            let js = "document.getElementById('\(safe)')?.scrollIntoView({behavior:'smooth',block:'start'});"
+            webView.evaluateJavaScript(js, completionHandler: nil)
+            DispatchQueue.main.async { self.viewModel.scrollToHeadingID = nil }
         }
     }
 

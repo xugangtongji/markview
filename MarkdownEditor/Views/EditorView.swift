@@ -33,12 +33,16 @@ struct EditorView: NSViewRepresentable {
 
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
         let textView = context.coordinator.textView
+
+        // Sync content
         if textView.string != viewModel.content {
             let sel = textView.selectedRange()
             textView.string = viewModel.content
             let safeRange = NSRange(location: min(sel.location, viewModel.content.utf16.count), length: 0)
             textView.setSelectedRange(safeRange)
         }
+
+        // Highlight find result
         if let range = viewModel.findResult,
            range != context.coordinator.lastHighlightedRange {
             context.coordinator.lastHighlightedRange = range
@@ -48,6 +52,20 @@ struct EditorView: NSViewRepresentable {
         } else if viewModel.findResult == nil {
             context.coordinator.lastHighlightedRange = nil
             textView.setSelectedRange(NSRange(location: textView.selectedRange().location, length: 0))
+        }
+
+        // TOC jump: scroll editor to target line
+        if let targetLine = viewModel.scrollToLine {
+            let lines = viewModel.content.components(separatedBy: "\n")
+            if targetLine < lines.count {
+                let prefix = lines[0..<targetLine].joined(separator: "\n")
+                let charOffset = prefix.utf16.count + (targetLine > 0 ? 1 : 0)
+                let location = min(charOffset, viewModel.content.utf16.count)
+                let range = NSRange(location: location, length: 0)
+                textView.setSelectedRange(range)
+                textView.scrollRangeToVisible(range)
+            }
+            DispatchQueue.main.async { self.viewModel.scrollToLine = nil }
         }
     }
 
