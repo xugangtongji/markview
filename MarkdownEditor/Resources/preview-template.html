@@ -23,7 +23,7 @@
       var content = document.getElementById('content');
       content.innerHTML = marked.parse(text);
 
-      // Add id to headings after render (version-stable, no marked renderer API dependency)
+      // Add id to headings after render — version-stable, no marked renderer API dependency.
       content.querySelectorAll('h1, h2, h3, h4').forEach(function(h) {
         var slug = h.textContent.toLowerCase()
           .replace(/\s+/g, '-')
@@ -42,6 +42,43 @@
   window.__setTheme = function(theme) {
     document.documentElement.setAttribute('data-theme', theme);
   };
+
+  // ── Scroll sync ──────────────────────────────────────────────────────────
+
+  // Called by Swift (EditorView → Preview direction).
+  // Sets __suppressScrollMsg so the resulting scroll event is not echoed back.
+  window.__suppressScrollMsg = false;
+  window.__scrollTo = function(fraction) {
+    window.__suppressScrollMsg = true;
+    var scrollable = document.documentElement;
+    var h = scrollable.scrollHeight - window.innerHeight;
+    if (h > 0) {
+      scrollable.scrollTop = h * fraction;
+    }
+    // Clear suppression after the scroll event has had time to fire (~2 frames).
+    setTimeout(function() { window.__suppressScrollMsg = false; }, 100);
+  };
+
+  // Sends scroll position to Swift (Preview → Editor direction).
+  // Debounced to one message per animation frame; skipped when suppressed.
+  var __scrollRaf = null;
+  window.addEventListener('scroll', function() {
+    if (window.__suppressScrollMsg) return;
+    if (__scrollRaf) return;
+    __scrollRaf = requestAnimationFrame(function() {
+      __scrollRaf = null;
+      if (window.__suppressScrollMsg) return;
+      var scrollable = document.documentElement;
+      var h = scrollable.scrollHeight - window.innerHeight;
+      if (h <= 0) return;
+      var fraction = scrollable.scrollTop / h;
+      if (window.webkit &&
+          window.webkit.messageHandlers &&
+          window.webkit.messageHandlers.scrollSync) {
+        window.webkit.messageHandlers.scrollSync.postMessage(fraction);
+      }
+    });
+  }, { passive: true });
 </script>
 </body>
 </html>

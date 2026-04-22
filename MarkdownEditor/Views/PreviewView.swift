@@ -7,6 +7,12 @@ struct PreviewView: NSViewRepresentable {
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
+        // Use a weak wrapper to avoid the WKUserContentController→Coordinator retain cycle.
+        config.userContentController.add(
+            WeakScriptMessageHandler(context.coordinator),
+            name: "scrollSync"
+        )
+
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
 
@@ -48,17 +54,22 @@ struct PreviewView: NSViewRepresentable {
 
     // MARK: - Coordinator
 
-    final class Coordinator: NSObject, WKNavigationDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         weak var webView: WKWebView?
         var isReady = false
         var lastRendered: String = UUID().uuidString  // force first inject
         var pendingTheme: String = "light"
 
+        /// True while we are programmatically scrolling the preview in response to
+        /// an editor scroll — prevents the resulting JS scroll event from re-firing
+        /// previewDidScroll and creating a feedback loop.
+        private var isScrollingFromEditor = false
+
         override init() {
             super.init()
             NotificationCenter.default.addObserver(
                 self,
-                selector: #selector(editorDidScroll(_:)),
+                selector: #selector(editorDidScrollHandler(_:)),
                 name: .editorDidScroll,
                 object: nil
             )
@@ -68,18 +79,39 @@ struct PreviewView: NSViewRepresentable {
             NotificationCenter.default.removeObserver(self)
         }
 
-        @objc func editorDidScroll(_ notification: Notification) {
+        // MARK: - Scroll sync (Editor → Preview direction)
+
+        @objc func editorDidScrollHandler(_ notification: Notification) {
             guard isReady,
                   let fraction = notification.userInfo?["fraction"] as? Double else { return }
-            // Scroll preview proportionally to editor scroll position
-            let js = """
-                (function(){
-                  var h = document.documentElement.scrollHeight - window.innerHeight;
-                  if (h > 0) window.scrollTo({ top: h * \(fraction), behavior: 'auto' });
-                })();
-                """
+            isScrollingFromEditor = true
+            // window.__scrollTo sets __suppressScrollMsg in JS before calling window.scrollTo,
+            // so the resulting scroll event does not echo back to Swift.
+            let js = "window.__scrollTo && window.__scrollTo(\(fraction));"
             webView?.evaluateJavaScript(js, completionHandler: nil)
+            // Reset flag after the scroll event has had time to fire and be suppressed.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                self?.isScrollingFromEditor = false
+            }
         }
+
+        // MARK: - Scroll sync (Preview → Editor direction)
+
+        func userContentController(
+            _ userContentController: WKUserContentController,
+            didReceive message: WKScriptMessage
+        ) {
+            guard message.name == "scrollSync",
+                  let fraction = message.body as? Double,
+                  !isScrollingFromEditor else { return }
+            NotificationCenter.default.post(
+                name: .previewDidScroll,
+                object: nil,
+                userInfo: ["fraction": fraction]
+            )
+        }
+
+        // MARK: - WKNavigationDelegate
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             isReady = true
@@ -98,5 +130,23 @@ struct PreviewView: NSViewRepresentable {
             let js = "window.__setTheme('\(theme)');"
             webView?.evaluateJavaScript(js, completionHandler: nil)
         }
+    }
+}
+
+// MARK: - WeakScriptMessageHandler
+
+/// Breaks the strong reference cycle:
+/// WKUserContentController → (strong) handler → (weak) Coordinator
+/// Without this wrapper, the Coordinator would be retained by the WKWebView
+/// configuration and could not be deallocated normally.
+private final class WeakScriptMessageHandler: NSObject, WKScriptMessageHandler {
+    weak var delegate: WKScriptMessageHandler?
+    init(_ delegate: WKScriptMessageHandler) { self.delegate = delegate }
+
+    func userContentController(
+        _ userContentController: WKUserContentController,
+        didReceive message: WKScriptMessage
+    ) {
+        delegate?.userContentController(userContentController, didReceive: message)
     }
 }

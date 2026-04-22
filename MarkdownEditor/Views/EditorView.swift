@@ -4,6 +4,8 @@ import SwiftUI
 extension Notification.Name {
     /// Posted by EditorView when the user scrolls; userInfo["fraction"] is a Double in [0,1].
     static let editorDidScroll = Notification.Name("MarkdownEditor.editorDidScroll")
+    /// Posted by PreviewView when the user scrolls; userInfo["fraction"] is a Double in [0,1].
+    static let previewDidScroll = Notification.Name("MarkdownEditor.previewDidScroll")
 }
 
 struct EditorView: NSViewRepresentable {
@@ -34,12 +36,18 @@ struct EditorView: NSViewRepresentable {
         scroll.documentView = textView
         scroll.autohidesScrollers = true
 
-        // Observe live scroll events to drive preview sync
+        // Store weak ref so coordinator can programmatically scroll the view
+        context.coordinator.scrollView = scroll
+
+        // NSView.boundsDidChangeNotification on the clip view fires for ALL scroll
+        // mechanisms (trackpad, mouse wheel, keyboard, programmatic) — unlike
+        // NSScrollView.didLiveScrollNotification which only fires for trackpad gestures.
+        scroll.contentView.postsBoundsChangedNotifications = true
         NotificationCenter.default.addObserver(
             context.coordinator,
-            selector: #selector(Coordinator.scrollViewDidScroll(_:)),
-            name: NSScrollView.didLiveScrollNotification,
-            object: scroll
+            selector: #selector(Coordinator.clipViewBoundsDidChange(_:)),
+            name: NSView.boundsDidChangeNotification,
+            object: scroll.contentView   // object IS the NSClipView, not the NSScrollView
         )
 
         return scroll
@@ -92,22 +100,42 @@ struct EditorView: NSViewRepresentable {
     final class Coordinator: NSObject, NSTextViewDelegate {
         let textView = NSTextView()
         var lastHighlightedRange: NSRange? = nil
+        /// Weak reference to the scroll view so we can programmatically scroll it
+        /// in response to preview scroll events.
+        weak var scrollView: NSScrollView?
         private weak var viewModel: DocumentViewModel?
+
+        /// True while we are programmatically scrolling the editor in response to
+        /// a preview scroll — prevents the resulting boundsDidChange from re-firing
+        /// editorDidScroll and creating a feedback loop.
+        private var isScrollingFromPreview = false
 
         init(viewModel: DocumentViewModel) {
             self.viewModel = viewModel
+            super.init()
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(previewDidScrollHandler(_:)),
+                name: .previewDidScroll,
+                object: nil
+            )
         }
 
         deinit {
             NotificationCenter.default.removeObserver(self)
         }
 
-        @objc func scrollViewDidScroll(_ notification: Notification) {
-            guard let scrollView = notification.object as? NSScrollView,
-                  let docView = scrollView.documentView else { return }
-            let visible = scrollView.documentVisibleRect
+        // MARK: - Scroll sync (Editor → Preview direction)
+
+        @objc func clipViewBoundsDidChange(_ notification: Notification) {
+            // Guard: if this scroll was triggered by us (responding to preview), skip it.
+            guard !isScrollingFromPreview,
+                  let clipView = notification.object as? NSClipView,
+                  let docView = clipView.documentView else { return }
+            let visible = clipView.bounds
             let total = docView.bounds.height - visible.height
             guard total > 1 else { return }
+            // NSTextView is flipped: minY grows downward, so this fraction is 0→1 top→bottom.
             let fraction = max(0, min(1, visible.minY / total))
             NotificationCenter.default.post(
                 name: .editorDidScroll,
@@ -115,6 +143,33 @@ struct EditorView: NSViewRepresentable {
                 userInfo: ["fraction": fraction]
             )
         }
+
+        // MARK: - Scroll sync (Preview → Editor direction)
+
+        @objc func previewDidScrollHandler(_ notification: Notification) {
+            guard let fraction = notification.userInfo?["fraction"] as? Double,
+                  let scrollView else { return }
+            isScrollingFromPreview = true
+            let clipView = scrollView.contentView
+            guard let docView = scrollView.documentView else {
+                isScrollingFromPreview = false
+                return
+            }
+            let total = docView.bounds.height - clipView.bounds.height
+            guard total > 0 else {
+                isScrollingFromPreview = false
+                return
+            }
+            let newOrigin = NSPoint(x: 0, y: total * fraction)
+            clipView.scroll(to: newOrigin)
+            scrollView.reflectScrolledClipView(clipView)
+            // Reset flag after the resulting boundsDidChange has been delivered.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+                self?.isScrollingFromPreview = false
+            }
+        }
+
+        // MARK: - NSTextViewDelegate
 
         func textDidChange(_ notification: Notification) {
             guard let tv = notification.object as? NSTextView else { return }
