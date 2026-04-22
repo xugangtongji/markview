@@ -47,6 +47,7 @@ struct EditorView: NSViewRepresentable {
             textView.showFindIndicator(for: range)
         } else if viewModel.findResult == nil {
             context.coordinator.lastHighlightedRange = nil
+            textView.setSelectedRange(NSRange(location: textView.selectedRange().location, length: 0))
         }
     }
 

@@ -56,6 +56,8 @@ struct FindBarView: View {
         .shadow(color: .black.opacity(0.15), radius: 6, y: 2)
         .padding(.horizontal, 16)
         .padding(.top, 10)
-        .onAppear { findFocused = true }
+        .onAppear {
+            DispatchQueue.main.async { findFocused = true }
+        }
     }
 }
