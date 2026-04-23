@@ -68,8 +68,12 @@
       }
 
       // Step 5 — inject data-source-line onto block elements in DOM order.
+      // Use ':scope >' to select ONLY direct children of #content, so the count
+      // matches the top-level lexer tokens (blockquote/list internals are excluded).
       var blockEls = content.querySelectorAll(
-        'h1, h2, h3, h4, h5, h6, p, pre, ul, ol, blockquote, table, hr'
+        ':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6,' +
+        ':scope > p, :scope > pre, :scope > ul, :scope > ol,' +
+        ':scope > blockquote, :scope > table, :scope > hr'
       );
       for (var j = 0; j < blockEls.length && j < blockLines.length; j++) {
         blockEls[j].setAttribute('data-source-line', blockLines[j]);
