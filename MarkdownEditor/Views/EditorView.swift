@@ -127,7 +127,6 @@ struct EditorView: NSViewRepresentable {
             let fraction = max(0, min(1, visible.minY / total))
             // Compute the 1-indexed source line at the top of the visible area.
             let lineNumber = topVisibleLine(in: scrollView)
-            print("[ScrollSync] ← editor line=\(lineNumber) fraction=\(String(format: "%.3f", fraction))")
             NotificationCenter.default.post(
                 name: .editorDidScroll,
                 object: nil,

@@ -12,11 +12,7 @@ struct PreviewView: NSViewRepresentable {
             WeakScriptMessageHandler(context.coordinator),
             name: "scrollSync"
         )
-        // Debug log relay: JS → Swift print (remove before shipping)
-        config.userContentController.add(
-            WeakScriptMessageHandler(context.coordinator),
-            name: "log"
-        )
+
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
@@ -95,11 +91,7 @@ struct PreviewView: NSViewRepresentable {
 
         @objc func editorDidScrollHandler(_ notification: Notification) {
             guard isReady,
-                  let line = notification.userInfo?["line"] as? Int else {
-                print("[ScrollSync] ⚠️ skipped — isReady=\(isReady) line=\(notification.userInfo?["line"] as Any)")
-                return
-            }
-            print("[ScrollSync] → line \(line)")
+                  let line = notification.userInfo?["line"] as? Int else { return }
             let js = "window.__scrollToLine && window.__scrollToLine(\(line));"
             webView?.evaluateJavaScript(js, completionHandler: nil)
         }
@@ -110,11 +102,7 @@ struct PreviewView: NSViewRepresentable {
             _ userContentController: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
-            if message.name == "log" {
-                // Debug relay: JS console → Xcode output (remove before shipping)
-                print("[WebView]", message.body)
-            }
-            // scrollSync: Preview → Editor sync intentionally disabled.
+            // Preview → Editor sync intentionally disabled; editor is the sync source.
         }
 
         // MARK: - WKNavigationDelegate

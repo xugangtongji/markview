@@ -14,21 +14,11 @@
 <script>
   marked.use({ gfm: true, breaks: false });
 
-  // ── Debug relay: sends console.log to Swift (Xcode output) ───────────────
-  // Remove or guard with a flag before shipping.
-  function __dbg(msg) {
-    try {
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.log) {
-        window.webkit.messageHandlers.log.postMessage('[JS] ' + msg);
-      }
-    } catch(e) {}
-  }
-
   // ── Content injection ─────────────────────────────────────────────────────
   //
   // Strategy: render with the default marked.parse() (version-agnostic),
   // then build a source-line map via marked.lexer() and inject
-  // data-source-line attributes onto block elements in DOM order.
+  // data-source-line attributes onto direct-child block elements in DOM order.
   // This avoids all Renderer API breaking changes across marked versions.
 
   window.__updateContent = function(b64) {
@@ -72,8 +62,8 @@
       }
 
       // Step 5 — inject data-source-line onto block elements in DOM order.
-      // Use ':scope >' to select ONLY direct children of #content, so the count
-      // matches the top-level lexer tokens (blockquote/list internals are excluded).
+      // ':scope >' limits to direct children only, matching top-level lexer
+      // tokens and excluding nested elements (e.g. <p> inside <blockquote>).
       var blockEls = content.querySelectorAll(
         ':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6,' +
         ':scope > p, :scope > pre, :scope > ul, :scope > ol,' +
@@ -82,12 +72,7 @@
       for (var j = 0; j < blockEls.length && j < blockLines.length; j++) {
         blockEls[j].setAttribute('data-source-line', blockLines[j]);
       }
-
-      __dbg('__updateContent done | tokens(block)=' + blockLines.length +
-            ' domEls=' + blockEls.length +
-            ' firstLines=' + JSON.stringify(blockLines.slice(0, 6)));
     } catch(e) {
-      __dbg('__updateContent ERROR: ' + e);
       console.error('__updateContent error:', e);
     }
   };
@@ -121,7 +106,6 @@
   // then scrolls it into view.
   window.__scrollToLine = function(lineNumber) {
     var els = document.querySelectorAll('[data-source-line]');
-    __dbg('__scrollToLine(' + lineNumber + ') | annotated els=' + els.length);
     if (!els.length) return;
     var best = els[0];
     var bestLine = parseInt(els[0].getAttribute('data-source-line'), 10) || 1;
@@ -129,7 +113,6 @@
       var l = parseInt(els[i].getAttribute('data-source-line'), 10) || 1;
       if (l <= lineNumber && l >= bestLine) { best = els[i]; bestLine = l; }
     }
-    __dbg('  → scrolling to el with data-source-line=' + bestLine + ' tag=' + best.tagName);
     best.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
