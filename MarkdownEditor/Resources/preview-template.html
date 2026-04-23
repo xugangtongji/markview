@@ -50,10 +50,12 @@
         if (slug) h.id = slug;
       });
 
-      // Step 3 — syntax highlighting.
-      content.querySelectorAll('pre code').forEach(function(block) {
-        hljs.highlightElement(block);
-      });
+      // Step 3 — syntax highlighting (graceful if hljs not loaded).
+      if (typeof hljs !== 'undefined') {
+        content.querySelectorAll('pre code').forEach(function(block) {
+          hljs.highlightElement(block);
+        });
+      }
 
       // Step 4 — build source-line map from lexer tokens.
       // The lexer processes tokens in document order; the rendered DOM block
