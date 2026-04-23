@@ -14,6 +14,85 @@
 <script>
   marked.use({ gfm: true, breaks: false });
 
+  // ── AST-based line-annotated renderer ────────────────────────────────────
+  //
+  // Lex the Markdown source with marked.lexer() to record the 1-indexed
+  // source line number of every block token.  Then render with a custom
+  // Renderer that injects data-source-line="N" on every block element.
+  // Swift reads the top-visible source line from NSLayoutManager and calls
+  // window.__scrollToLine(N) to jump the preview to the matching element.
+
+  function renderWithLineNumbers(markdown) {
+    // Step 1 — lex and collect per-block source line numbers.
+    var tokens = marked.lexer(markdown);
+    var blockLines = [];
+    var BLOCK = {
+      heading: 1, paragraph: 1, code: 1, list: 1,
+      blockquote: 1, table: 1, hr: 1, html: 1
+      // 'space' tokens have no rendered output — skip them
+    };
+    var line = 1;
+    for (var i = 0; i < tokens.length; i++) {
+      var tok = tokens[i];
+      if (BLOCK[tok.type]) { blockLines.push(line); }
+      if (tok.raw) { line += (tok.raw.match(/\n/g) || []).length; }
+    }
+
+    // Step 2 — custom Renderer that consumes blockLines in order.
+    var blockIdx = 0;
+    function nextLine() { return blockLines[blockIdx++] || 0; }
+
+    var renderer = new marked.Renderer();
+
+    renderer.heading = function(text, level) {
+      var l = nextLine();
+      var slug = text.toLowerCase().replace(/[^\w]+/g, '-');
+      return '<h' + level + ' id="' + slug + '" data-source-line="' + l + '">'
+             + text + '</h' + level + '>\n';
+    };
+    renderer.paragraph = function(text) {
+      var l = nextLine();
+      return '<p data-source-line="' + l + '">' + text + '</p>\n';
+    };
+    renderer.code = function(code, language) {
+      var l = nextLine();
+      var lang = (language || '').split(/\s+/)[0];
+      var highlighted;
+      try {
+        highlighted = lang && hljs.getLanguage(lang)
+          ? hljs.highlight(code, { language: lang }).value
+          : hljs.highlightAuto(code).value;
+      } catch(e) { highlighted = code; }
+      var cls = 'hljs' + (lang ? ' language-' + lang : '');
+      return '<pre data-source-line="' + l + '"><code class="' + cls + '">'
+             + highlighted + '</code></pre>\n';
+    };
+    renderer.list = function(body, ordered, start) {
+      var l = nextLine();
+      var tag = ordered ? 'ol' : 'ul';
+      var startAttr = (ordered && start !== 1) ? ' start="' + start + '"' : '';
+      return '<' + tag + startAttr + ' data-source-line="' + l + '">'
+             + body + '</' + tag + '>\n';
+    };
+    renderer.blockquote = function(quote) {
+      var l = nextLine();
+      return '<blockquote data-source-line="' + l + '">' + quote + '</blockquote>\n';
+    };
+    renderer.table = function(header, body) {
+      var l = nextLine();
+      return '<table data-source-line="' + l + '"><thead>' + header
+             + '</thead><tbody>' + body + '</tbody></table>\n';
+    };
+    renderer.hr = function() {
+      var l = nextLine();
+      return '<hr data-source-line="' + l + '">\n';
+    };
+
+    return marked.parse(markdown, { renderer: renderer });
+  }
+
+  // ── Content injection ────────────────────────────────────────────────────
+
   window.__updateContent = function(b64) {
     try {
       var raw = atob(b64);
@@ -21,19 +100,8 @@
       for (var i = 0; i < raw.length; i++) { bytes[i] = raw.charCodeAt(i); }
       var text = new TextDecoder('utf-8').decode(bytes);
       var content = document.getElementById('content');
-      content.innerHTML = marked.parse(text);
-
-      // Add id to headings after render — version-stable, no marked renderer API dependency.
-      content.querySelectorAll('h1, h2, h3, h4').forEach(function(h) {
-        var slug = h.textContent.toLowerCase()
-          .replace(/\s+/g, '-')
-          .replace(/[^\w-]/g, '');
-        if (slug) h.id = slug;
-      });
-
-      content.querySelectorAll('pre code').forEach(function(block) {
-        hljs.highlightElement(block);
-      });
+      // renderWithLineNumbers handles heading IDs and syntax highlighting inline.
+      content.innerHTML = renderWithLineNumbers(text);
     } catch(e) {
       console.error('__updateContent error:', e);
     }
@@ -43,7 +111,7 @@
     document.documentElement.setAttribute('data-theme', theme);
   };
 
-  // ── Scroll sync ──────────────────────────────────────────────────────────
+  // ── Scroll sync (Editor → Preview only) ─────────────────────────────────
 
   // Total scrollable height helper — works across WKWebView/Safari variants.
   function __scrollHeight() {
@@ -53,39 +121,33 @@
     ) - window.innerHeight;
   }
 
-  // Called by Swift (EditorView → Preview direction).
-  // Uses window.scrollTo() — the only reliable scroll API in WKWebView on macOS.
-  // Sets __suppressScrollMsg before scrolling so the resulting scroll event is
-  // not echoed back to Swift.
+  // Called by Swift for tab-switch scroll-position restoration (fraction-based).
   window.__suppressScrollMsg = false;
   window.__scrollTo = function(fraction) {
     var h = __scrollHeight();
     if (h <= 0) return;
     window.__suppressScrollMsg = true;
-    window.scrollTo(0, h * fraction);           // positional form, most compatible
+    window.scrollTo(0, h * fraction);
     setTimeout(function() { window.__suppressScrollMsg = false; }, 150);
   };
 
-  // Sends scroll position to Swift (Preview → Editor direction).
-  // Uses window.scrollY — standard cross-browser scroll position.
-  // rAF-throttled to one message per frame; skipped while suppressed.
-  var __scrollRaf = null;
-  window.addEventListener('scroll', function() {
-    if (window.__suppressScrollMsg) return;
-    if (__scrollRaf) return;
-    __scrollRaf = requestAnimationFrame(function() {
-      __scrollRaf = null;
-      if (window.__suppressScrollMsg) return;
-      var h = __scrollHeight();
-      if (h <= 0) return;
-      var fraction = window.scrollY / h;        // scrollY = standard pageYOffset
-      if (window.webkit &&
-          window.webkit.messageHandlers &&
-          window.webkit.messageHandlers.scrollSync) {
-        window.webkit.messageHandlers.scrollSync.postMessage(fraction);
-      }
-    });
-  }, { passive: true });
+  // Called by Swift on every editor scroll (line-number-based, AST-mapped).
+  // Finds the block element whose data-source-line is the largest value ≤ lineNumber,
+  // then scrolls it into view.
+  window.__scrollToLine = function(lineNumber) {
+    var els = document.querySelectorAll('[data-source-line]');
+    if (!els.length) return;
+    var best = els[0];
+    var bestLine = parseInt(els[0].getAttribute('data-source-line'), 10) || 1;
+    for (var i = 1; i < els.length; i++) {
+      var l = parseInt(els[i].getAttribute('data-source-line'), 10) || 1;
+      if (l <= lineNumber && l >= bestLine) { best = els[i]; bestLine = l; }
+    }
+    best.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // Preview → Editor sync is intentionally disabled.
+  // The editor is the single source of scroll truth.
 </script>
 </body>
 </html>

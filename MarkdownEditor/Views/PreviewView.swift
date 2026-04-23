@@ -36,7 +36,19 @@ struct PreviewView: NSViewRepresentable {
         let trigger = viewModel.renderTrigger
         if coordinator.lastRendered != trigger {
             coordinator.lastRendered = trigger
-            if coordinator.isReady { coordinator.inject(markdown: trigger) }
+            if coordinator.isReady {
+                coordinator.inject(markdown: trigger)
+                // Restore scroll position after a tab switch (content just changed).
+                // Delayed slightly so the new content has time to lay out before scrolling.
+                let fraction = viewModel.scrollFraction
+                if fraction > 0 {
+                    let js = "window.__scrollTo && window.__scrollTo(\(fraction));"
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak webView] in
+                        webView?.evaluateJavaScript(js, completionHandler: nil)
+                    }
+                    viewModel.scrollFraction = 0
+                }
+            }
         }
 
         // TOC scroll: jump preview to heading anchor
@@ -45,14 +57,6 @@ struct PreviewView: NSViewRepresentable {
             let js = "document.getElementById('\(safe)')?.scrollIntoView({behavior:'smooth',block:'start'});"
             webView.evaluateJavaScript(js, completionHandler: nil)
             DispatchQueue.main.async { self.viewModel.scrollToHeadingID = nil }
-        }
-
-        // Restore preview scroll position on tab switch (consumes scrollFraction).
-        if viewModel.scrollFraction > 0, coordinator.isReady {
-            let fraction = viewModel.scrollFraction
-            let js = "window.__scrollTo && window.__scrollTo(\(fraction));"
-            webView.evaluateJavaScript(js, completionHandler: nil)
-            viewModel.scrollFraction = 0
         }
     }
 
@@ -67,8 +71,6 @@ struct PreviewView: NSViewRepresentable {
         var isReady = false
         var lastRendered: String = UUID().uuidString  // force first inject
         var pendingTheme: String = "light"
-        /// Lock to prevent infinite scroll-sync loops (defense-in-depth beyond JS __suppressScrollMsg).
-        private var isSyncing = false
 
         override init() {
             super.init()
@@ -84,32 +86,22 @@ struct PreviewView: NSViewRepresentable {
             NotificationCenter.default.removeObserver(self)
         }
 
-        // MARK: - Scroll sync (Editor → Preview direction)
+        // MARK: - Scroll sync (Editor → Preview, line-number based)
 
         @objc func editorDidScrollHandler(_ notification: Notification) {
-            guard !isSyncing else { return }
-            isSyncing = true
-            defer { isSyncing = false }
             guard isReady,
-                  let fraction = notification.userInfo?["fraction"] as? Double else { return }
-            // window.__scrollTo sets __suppressScrollMsg in JS to suppress the echo event.
-            let js = "window.__scrollTo && window.__scrollTo(\(fraction));"
+                  let line = notification.userInfo?["line"] as? Int else { return }
+            let js = "window.__scrollToLine && window.__scrollToLine(\(line));"
             webView?.evaluateJavaScript(js, completionHandler: nil)
         }
 
-        // MARK: - WKScriptMessageHandler (scroll messages from JS)
+        // MARK: - WKScriptMessageHandler
 
         func userContentController(
             _ userContentController: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
-            guard message.name == "scrollSync",
-                  let fraction = message.body as? Double else { return }
-            NotificationCenter.default.post(
-                name: .previewDidScroll,
-                object: nil,
-                userInfo: ["fraction": fraction]
-            )
+            // Preview → Editor sync intentionally disabled; editor is the sync source.
         }
 
         // MARK: - WKNavigationDelegate

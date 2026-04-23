@@ -100,46 +100,17 @@ struct EditorView: NSViewRepresentable {
     final class Coordinator: NSObject, NSTextViewDelegate {
         let textView = NSTextView()
         var lastHighlightedRange: NSRange? = nil
-        /// Weak reference to the scroll view so we can programmatically scroll it
-        /// in response to preview scroll events.
+        /// Weak reference to the scroll view so we can read scroll position.
         weak var scrollView: NSScrollView?
         private weak var viewModel: DocumentViewModel?
-        /// Lock to prevent infinite scroll-sync loops (defense-in-depth beyond JS __suppressScrollMsg).
-        private var isSyncing = false
 
         init(viewModel: DocumentViewModel) {
             self.viewModel = viewModel
             super.init()
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(previewDidScrollHandler(_:)),
-                name: .previewDidScroll,
-                object: nil
-            )
         }
 
         deinit {
             NotificationCenter.default.removeObserver(self)
-        }
-
-        // MARK: - Scroll sync (Preview → Editor direction)
-
-        @objc func previewDidScrollHandler(_ notification: Notification) {
-            guard !isSyncing else { return }
-            isSyncing = true
-            defer { isSyncing = false }
-            guard let fraction = notification.userInfo?["fraction"] as? Double else { return }
-            // Use scrollClipView.bounds.origin.y — reliable in NSTextView.
-            // NSTextView is flipped: minY = distance from top.
-            guard let scrollView = scrollView,
-                  let docView = scrollView.documentView else { return }
-            let clipView = scrollView.contentView
-            let visible = clipView.bounds.height
-            let docHeight = docView.frame.height
-            let total = docHeight - visible
-            guard total > 1 else { return }
-            let targetY = fraction * total
-            clipView.scroll(NSMakePoint(0, targetY))
         }
 
         // MARK: - Scroll sync (Editor → Preview direction)
@@ -148,20 +119,20 @@ struct EditorView: NSViewRepresentable {
             guard let clipView = notification.object as? NSClipView,
                   let scrollView = clipView.enclosingScrollView,
                   let docView = scrollView.documentView else { return }
-            // Use documentVisibleRect (in document coords) + frame.height (set by scroll view)
-            // rather than clipView.bounds — more reliable when NSTextView layout is lazy.
             let visible = scrollView.documentVisibleRect
             let docHeight = docView.frame.height
             let total = docHeight - visible.height
             guard total > 1 else { return }
             // NSTextView is flipped: minY is distance from top → fraction 0→1 = top→bottom.
             let fraction = max(0, min(1, visible.minY / total))
+            // Compute the 1-indexed source line at the top of the visible area.
+            let lineNumber = topVisibleLine(in: scrollView)
             NotificationCenter.default.post(
                 name: .editorDidScroll,
                 object: nil,
-                userInfo: ["fraction": fraction]
+                userInfo: ["line": lineNumber, "fraction": fraction]
             )
-            // Keep DocumentViewModel scroll fraction in sync for tab snapshot
+            // Keep DocumentViewModel scroll fraction in sync for tab snapshot.
             Task { @MainActor [weak self] in
                 self?.viewModel?.updateScrollFraction(fraction)
             }
@@ -199,4 +170,32 @@ struct EditorView: NSViewRepresentable {
             return (line, column)
         }
     }
+}
+
+// MARK: - Scroll Helper
+
+/// Returns the 1-indexed source line visible at the top of the editor scroll view.
+/// Uses NSLayoutManager to map the visible rectangle's top-left point to a character
+/// index, then counts newlines in the preceding text.
+private func topVisibleLine(in scrollView: NSScrollView) -> Int {
+    guard let textView = scrollView.documentView as? NSTextView,
+          let layoutManager = textView.layoutManager,
+          let textContainer = textView.textContainer else { return 1 }
+
+    let inset = textView.textContainerInset          // NSSize padding around text container
+    let visY  = scrollView.documentVisibleRect.minY  // top of visible area in textView coords
+    // Convert to text-container coordinates (subtract inset).
+    let ctY   = max(0, visY - inset.height)
+    let point = NSPoint(x: inset.width, y: ctY)
+
+    // glyphIndex(for:in:) clamps to valid range if point is outside the layout.
+    let glyphIdx = layoutManager.glyphIndex(for: point, in: textContainer,
+                                            fractionOfDistanceThroughGlyph: nil)
+    let charIdx  = layoutManager.characterIndexForGlyph(at: glyphIdx)
+
+    let text = textView.string
+    if charIdx == 0 { return 1 }
+    let endIdx = text.index(text.startIndex, offsetBy: min(charIdx, text.count))
+    // Count newlines before charIdx; each newline ends a line, so line number = count.
+    return text[..<endIdx].components(separatedBy: "\n").count
 }
