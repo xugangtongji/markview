@@ -71,9 +71,9 @@ struct EditorView: NSViewRepresentable {
             textView.setSelectedRange(range)
             textView.scrollRangeToVisible(range)
             textView.showFindIndicator(for: range)
-        } else if viewModel.findResult == nil {
+        } else if viewModel.findResult == nil && context.coordinator.lastHighlightedRange != nil {
+            // Find was dismissed — clear the tracked range but leave the user's selection intact
             context.coordinator.lastHighlightedRange = nil
-            textView.setSelectedRange(NSRange(location: textView.selectedRange().location, length: 0))
         }
 
         // TOC jump: scroll editor to target line
@@ -104,11 +104,8 @@ struct EditorView: NSViewRepresentable {
         /// in response to preview scroll events.
         weak var scrollView: NSScrollView?
         private weak var viewModel: DocumentViewModel?
-
-        /// True while we are programmatically scrolling the editor in response to
-        /// a preview scroll — prevents the resulting boundsDidChange from re-firing
-        /// editorDidScroll and creating a feedback loop.
-        private var isScrollingFromPreview = false
+        /// Lock to prevent infinite scroll-sync loops (defense-in-depth beyond JS __suppressScrollMsg).
+        private var isSyncing = false
 
         init(viewModel: DocumentViewModel) {
             self.viewModel = viewModel
@@ -125,12 +122,30 @@ struct EditorView: NSViewRepresentable {
             NotificationCenter.default.removeObserver(self)
         }
 
+        // MARK: - Scroll sync (Preview → Editor direction)
+
+        @objc func previewDidScrollHandler(_ notification: Notification) {
+            guard !isSyncing else { return }
+            isSyncing = true
+            defer { isSyncing = false }
+            guard let fraction = notification.userInfo?["fraction"] as? Double else { return }
+            // Use scrollClipView.bounds.origin.y — reliable in NSTextView.
+            // NSTextView is flipped: minY = distance from top.
+            guard let scrollView = scrollView,
+                  let docView = scrollView.documentView else { return }
+            let clipView = scrollView.contentView
+            let visible = clipView.bounds.height
+            let docHeight = docView.frame.height
+            let total = docHeight - visible
+            guard total > 1 else { return }
+            let targetY = fraction * total
+            clipView.scroll(NSMakePoint(0, targetY))
+        }
+
         // MARK: - Scroll sync (Editor → Preview direction)
 
         @objc func clipViewBoundsDidChange(_ notification: Notification) {
-            // Guard: if this scroll was triggered by us (responding to preview), skip it.
-            guard !isScrollingFromPreview,
-                  let clipView = notification.object as? NSClipView,
+            guard let clipView = notification.object as? NSClipView,
                   let scrollView = clipView.enclosingScrollView,
                   let docView = scrollView.documentView else { return }
             // Use documentVisibleRect (in document coords) + frame.height (set by scroll view)
@@ -146,30 +161,9 @@ struct EditorView: NSViewRepresentable {
                 object: nil,
                 userInfo: ["fraction": fraction]
             )
-        }
-
-        // MARK: - Scroll sync (Preview → Editor direction)
-
-        @objc func previewDidScrollHandler(_ notification: Notification) {
-            guard let fraction = notification.userInfo?["fraction"] as? Double,
-                  let scrollView else { return }
-            isScrollingFromPreview = true
-            let clipView = scrollView.contentView
-            guard let docView = scrollView.documentView else {
-                isScrollingFromPreview = false
-                return
-            }
-            let total = docView.bounds.height - clipView.bounds.height
-            guard total > 0 else {
-                isScrollingFromPreview = false
-                return
-            }
-            let newOrigin = NSPoint(x: 0, y: total * fraction)
-            clipView.scroll(to: newOrigin)
-            scrollView.reflectScrolledClipView(clipView)
-            // Reset flag after the resulting boundsDidChange has been delivered.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
-                self?.isScrollingFromPreview = false
+            // Keep DocumentViewModel scroll fraction in sync for tab snapshot
+            Task { @MainActor [weak self] in
+                self?.viewModel?.updateScrollFraction(fraction)
             }
         }
 

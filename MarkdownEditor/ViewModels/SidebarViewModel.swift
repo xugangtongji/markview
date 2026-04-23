@@ -2,10 +2,6 @@ import Combine
 import Foundation
 import SwiftUI
 
-enum SidebarTab: Equatable {
-    case files, toc
-}
-
 struct FileItem: Identifiable {
     let id: URL
     let name: String
@@ -23,7 +19,6 @@ struct TOCItem: Identifiable {
 @MainActor
 final class SidebarViewModel: ObservableObject {
     @Published var isVisible: Bool = true
-    @Published var activeTab: SidebarTab = .files
     @Published var workspaceURL: URL? = nil
     @Published var files: [FileItem] = []
     @Published var tocItems: [TOCItem] = []

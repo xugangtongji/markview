@@ -97,6 +97,7 @@ final class DocumentViewModel: ObservableObject {
         fileURL = nil
         isModified = false
         renderTrigger = ""
+        scrollFraction = 0
     }
 
     func openDocument() async {
@@ -128,6 +129,29 @@ final class DocumentViewModel: ObservableObject {
         guard let url = await fileService.saveDocumentAs(content: content) else { return }
         fileURL = url
         isModified = false
+    }
+
+    // MARK: - Tab Coordination
+
+    /// Current scroll fraction; updated by EditorView coordinator for tab snapshot.
+    @Published var scrollFraction: Double = 0
+    /// Load state from a TabItem snapshot (called on tab switch).
+    /// Sets renderTrigger directly to bypass the 200ms debounce.
+    func loadFromTab(_ tab: TabItem) {
+        content = tab.content
+        fileURL = tab.url
+        isModified = tab.isModified
+        cursorLine = tab.cursorLine
+        cursorColumn = tab.cursorColumn
+        scrollFraction = tab.scrollFraction
+        renderTrigger = tab.content
+        showFindBar = false
+        findText = ""
+        findResult = nil
+    }
+
+    func updateScrollFraction(_ fraction: Double) {
+        scrollFraction = fraction
     }
 
     // MARK: - Cursor

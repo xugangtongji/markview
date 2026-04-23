@@ -46,6 +46,14 @@ struct PreviewView: NSViewRepresentable {
             webView.evaluateJavaScript(js, completionHandler: nil)
             DispatchQueue.main.async { self.viewModel.scrollToHeadingID = nil }
         }
+
+        // Restore preview scroll position on tab switch (consumes scrollFraction).
+        if viewModel.scrollFraction > 0, coordinator.isReady {
+            let fraction = viewModel.scrollFraction
+            let js = "window.__scrollTo && window.__scrollTo(\(fraction));"
+            webView.evaluateJavaScript(js, completionHandler: nil)
+            viewModel.scrollFraction = 0
+        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -59,11 +67,8 @@ struct PreviewView: NSViewRepresentable {
         var isReady = false
         var lastRendered: String = UUID().uuidString  // force first inject
         var pendingTheme: String = "light"
-
-        /// True while we are programmatically scrolling the preview in response to
-        /// an editor scroll — prevents the resulting JS scroll event from re-firing
-        /// previewDidScroll and creating a feedback loop.
-        private var isScrollingFromEditor = false
+        /// Lock to prevent infinite scroll-sync loops (defense-in-depth beyond JS __suppressScrollMsg).
+        private var isSyncing = false
 
         override init() {
             super.init()
@@ -82,28 +87,24 @@ struct PreviewView: NSViewRepresentable {
         // MARK: - Scroll sync (Editor → Preview direction)
 
         @objc func editorDidScrollHandler(_ notification: Notification) {
+            guard !isSyncing else { return }
+            isSyncing = true
+            defer { isSyncing = false }
             guard isReady,
                   let fraction = notification.userInfo?["fraction"] as? Double else { return }
-            isScrollingFromEditor = true
-            // window.__scrollTo sets __suppressScrollMsg in JS before calling window.scrollTo,
-            // so the resulting scroll event does not echo back to Swift.
+            // window.__scrollTo sets __suppressScrollMsg in JS to suppress the echo event.
             let js = "window.__scrollTo && window.__scrollTo(\(fraction));"
             webView?.evaluateJavaScript(js, completionHandler: nil)
-            // Reset flag after the scroll event has had time to fire and be suppressed.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                self?.isScrollingFromEditor = false
-            }
         }
 
-        // MARK: - Scroll sync (Preview → Editor direction)
+        // MARK: - WKScriptMessageHandler (scroll messages from JS)
 
         func userContentController(
             _ userContentController: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
             guard message.name == "scrollSync",
-                  let fraction = message.body as? Double,
-                  !isScrollingFromEditor else { return }
+                  let fraction = message.body as? Double else { return }
             NotificationCenter.default.post(
                 name: .previewDidScroll,
                 object: nil,
