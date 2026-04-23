@@ -14,15 +14,17 @@
 <script>
   marked.use({ gfm: true, breaks: false });
 
-  // ── AST-based line-annotated renderer ────────────────────────────────────
-  //
-  // Lex the Markdown source with marked.lexer() to record the 1-indexed
-  // source line number of every block token.  Then render with a custom
-  // Renderer that injects data-source-line="N" on every block element.
-  // Swift reads the top-visible source line from NSLayoutManager and calls
-  // window.__scrollToLine(N) to jump the preview to the matching element.
+  // ── Debug relay: sends console.log to Swift (Xcode output) ───────────────
+  // Remove or guard with a flag before shipping.
+  function __dbg(msg) {
+    try {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.log) {
+        window.webkit.messageHandlers.log.postMessage('[JS] ' + msg);
+      }
+    } catch(e) {}
+  }
 
-  // ── Content injection ────────────────────────────────────────────────────
+  // ── Content injection ─────────────────────────────────────────────────────
   //
   // Strategy: render with the default marked.parse() (version-agnostic),
   // then build a source-line map via marked.lexer() and inject
@@ -78,7 +80,12 @@
       for (var j = 0; j < blockEls.length && j < blockLines.length; j++) {
         blockEls[j].setAttribute('data-source-line', blockLines[j]);
       }
+
+      __dbg('__updateContent done | tokens(block)=' + blockLines.length +
+            ' domEls=' + blockEls.length +
+            ' firstLines=' + JSON.stringify(blockLines.slice(0, 6)));
     } catch(e) {
+      __dbg('__updateContent ERROR: ' + e);
       console.error('__updateContent error:', e);
     }
   };
@@ -112,6 +119,7 @@
   // then scrolls it into view.
   window.__scrollToLine = function(lineNumber) {
     var els = document.querySelectorAll('[data-source-line]');
+    __dbg('__scrollToLine(' + lineNumber + ') | annotated els=' + els.length);
     if (!els.length) return;
     var best = els[0];
     var bestLine = parseInt(els[0].getAttribute('data-source-line'), 10) || 1;
@@ -119,6 +127,7 @@
       var l = parseInt(els[i].getAttribute('data-source-line'), 10) || 1;
       if (l <= lineNumber && l >= bestLine) { best = els[i]; bestLine = l; }
     }
+    __dbg('  → scrolling to el with data-source-line=' + bestLine + ' tag=' + best.tagName);
     best.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
