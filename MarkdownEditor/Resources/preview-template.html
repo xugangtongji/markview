@@ -22,76 +22,12 @@
   // Swift reads the top-visible source line from NSLayoutManager and calls
   // window.__scrollToLine(N) to jump the preview to the matching element.
 
-  function renderWithLineNumbers(markdown) {
-    // Step 1 — lex and collect per-block source line numbers.
-    var tokens = marked.lexer(markdown);
-    var blockLines = [];
-    var BLOCK = {
-      heading: 1, paragraph: 1, code: 1, list: 1,
-      blockquote: 1, table: 1, hr: 1, html: 1
-      // 'space' tokens have no rendered output — skip them
-    };
-    var line = 1;
-    for (var i = 0; i < tokens.length; i++) {
-      var tok = tokens[i];
-      if (BLOCK[tok.type]) { blockLines.push(line); }
-      if (tok.raw) { line += (tok.raw.match(/\n/g) || []).length; }
-    }
-
-    // Step 2 — custom Renderer that consumes blockLines in order.
-    var blockIdx = 0;
-    function nextLine() { return blockLines[blockIdx++] || 0; }
-
-    var renderer = new marked.Renderer();
-
-    renderer.heading = function(text, level) {
-      var l = nextLine();
-      var slug = text.toLowerCase().replace(/[^\w]+/g, '-');
-      return '<h' + level + ' id="' + slug + '" data-source-line="' + l + '">'
-             + text + '</h' + level + '>\n';
-    };
-    renderer.paragraph = function(text) {
-      var l = nextLine();
-      return '<p data-source-line="' + l + '">' + text + '</p>\n';
-    };
-    renderer.code = function(code, language) {
-      var l = nextLine();
-      var lang = (language || '').split(/\s+/)[0];
-      var highlighted;
-      try {
-        highlighted = lang && hljs.getLanguage(lang)
-          ? hljs.highlight(code, { language: lang }).value
-          : hljs.highlightAuto(code).value;
-      } catch(e) { highlighted = code; }
-      var cls = 'hljs' + (lang ? ' language-' + lang : '');
-      return '<pre data-source-line="' + l + '"><code class="' + cls + '">'
-             + highlighted + '</code></pre>\n';
-    };
-    renderer.list = function(body, ordered, start) {
-      var l = nextLine();
-      var tag = ordered ? 'ol' : 'ul';
-      var startAttr = (ordered && start !== 1) ? ' start="' + start + '"' : '';
-      return '<' + tag + startAttr + ' data-source-line="' + l + '">'
-             + body + '</' + tag + '>\n';
-    };
-    renderer.blockquote = function(quote) {
-      var l = nextLine();
-      return '<blockquote data-source-line="' + l + '">' + quote + '</blockquote>\n';
-    };
-    renderer.table = function(header, body) {
-      var l = nextLine();
-      return '<table data-source-line="' + l + '"><thead>' + header
-             + '</thead><tbody>' + body + '</tbody></table>\n';
-    };
-    renderer.hr = function() {
-      var l = nextLine();
-      return '<hr data-source-line="' + l + '">\n';
-    };
-
-    return marked.parse(markdown, { renderer: renderer });
-  }
-
   // ── Content injection ────────────────────────────────────────────────────
+  //
+  // Strategy: render with the default marked.parse() (version-agnostic),
+  // then build a source-line map via marked.lexer() and inject
+  // data-source-line attributes onto block elements in DOM order.
+  // This avoids all Renderer API breaking changes across marked versions.
 
   window.__updateContent = function(b64) {
     try {
@@ -100,8 +36,44 @@
       for (var i = 0; i < raw.length; i++) { bytes[i] = raw.charCodeAt(i); }
       var text = new TextDecoder('utf-8').decode(bytes);
       var content = document.getElementById('content');
-      // renderWithLineNumbers handles heading IDs and syntax highlighting inline.
-      content.innerHTML = renderWithLineNumbers(text);
+
+      // Step 1 — standard render (works with any marked.js version).
+      content.innerHTML = marked.parse(text);
+
+      // Step 2 — heading IDs (version-stable post-processing).
+      content.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(function(h) {
+        var slug = h.textContent.toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w-]/g, '');
+        if (slug) h.id = slug;
+      });
+
+      // Step 3 — syntax highlighting.
+      content.querySelectorAll('pre code').forEach(function(block) {
+        hljs.highlightElement(block);
+      });
+
+      // Step 4 — build source-line map from lexer tokens.
+      // The lexer processes tokens in document order; the rendered DOM block
+      // elements appear in the same order → annotate them 1-to-1.
+      var tokens = marked.lexer(text);
+      var BLOCK = { heading: 1, paragraph: 1, code: 1, list: 1,
+                    blockquote: 1, table: 1, hr: 1 };
+      var blockLines = [];
+      var line = 1;
+      for (var i = 0; i < tokens.length; i++) {
+        var tok = tokens[i];
+        if (BLOCK[tok.type]) { blockLines.push(line); }
+        if (tok.raw) { line += (tok.raw.match(/\n/g) || []).length; }
+      }
+
+      // Step 5 — inject data-source-line onto block elements in DOM order.
+      var blockEls = content.querySelectorAll(
+        'h1, h2, h3, h4, h5, h6, p, pre, ul, ol, blockquote, table, hr'
+      );
+      for (var j = 0; j < blockEls.length && j < blockLines.length; j++) {
+        blockEls[j].setAttribute('data-source-line', blockLines[j]);
+      }
     } catch(e) {
       console.error('__updateContent error:', e);
     }
