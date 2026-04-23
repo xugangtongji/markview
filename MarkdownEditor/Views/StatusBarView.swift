@@ -25,6 +25,14 @@ struct StatusBarView: View {
 
             Spacer()
 
+            Text("Markdown")
+
+            Divider().frame(height: 12)
+
+            Text("UTF-8")
+
+            Divider().frame(height: 12)
+
             Text(viewModel.isModified ? "未保存" : "已保存")
                 .foregroundStyle(viewModel.isModified ? Color.orange : Color.secondary)
         }

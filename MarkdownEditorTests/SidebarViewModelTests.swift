@@ -12,7 +12,6 @@ final class SidebarViewModelTests: XCTestCase {
 
     func testInitialState() {
         XCTAssertTrue(vm.isVisible)
-        XCTAssertEqual(vm.activeTab, .files)
         XCTAssertNil(vm.workspaceURL)
         XCTAssertTrue(vm.files.isEmpty)
         XCTAssertTrue(vm.tocItems.isEmpty)

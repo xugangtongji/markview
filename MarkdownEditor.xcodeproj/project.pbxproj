@@ -30,7 +30,14 @@
 		7795DFB81710D01996AD9F5667AD7C7F87F280D9 /* FileBrowserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DCF457B54528DD7C728BB38D3D3D9A831D409F3 /* FileBrowserView.swift */; };
 		757FEFA4BE1CA52DB1168D13C44E0B7626AA4E34 /* TOCView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0D78D2383898F38370FF55438452171A86128 /* TOCView.swift */; };
 		6E55F945258CD8E2D2D9855068ED3817AC38A7B5 /* SidebarViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422F8B79D85F5844EF1CE09616AE83D9BC43215 /* SidebarViewModelTests.swift */; };
-/* End PBXBuildFile section */
+		06D0D553DB8E62CEED451BB0 /* TabsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76764A40394B63AC7A60C51 /* TabsViewModel.swift */; };
+		C7304FF9E235DFB44E067B97 /* ActivityBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31A4CC9CFDA99CAA9E5ECD16 /* ActivityBarView.swift */; };
+		CB8D02B32D2B8DC17E318108 /* SidePanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D28F58AB44F4A4E15F9F3CB /* SidePanelView.swift */; };
+		E83FE1A90499015FF2698AD0 /* SearchPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3495CEB09DC953194E2AC27F /* SearchPanelView.swift */; };
+		734CB26D3C79E5D22CC6F299 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31946341A4EB1C8D0B1E2644 /* TabBarView.swift */; };
+		BE30DFAD30667270CCC73B31 /* CommandPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4AB5631BF6F3906B7D3544 /* CommandPaletteView.swift */; };
+		56713369ADCB6AFD2CCFBF7D /* TabsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01BA5991139AB468FF5EA0E /* TabsViewModelTests.swift */; };
+		/* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		478BDA858AC4CB9AF3389EBF /* PBXContainerItemProxy */ = {
@@ -68,7 +75,14 @@
 		3DCF457B54528DD7C728BB38D3D3D9A831D409F3 /* FileBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileBrowserView.swift; sourceTree = "<group>"; };
 		DCA0D78D2383898F38370FF55438452171A86128 /* TOCView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TOCView.swift; sourceTree = "<group>"; };
 		F422F8B79D85F5844EF1CE09616AE83D9BC43215 /* SidebarViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarViewModelTests.swift; sourceTree = "<group>"; };
-/* End PBXFileReference section */
+		A76764A40394B63AC7A60C51 /* TabsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabsViewModel.swift; sourceTree = "<group>"; };
+		31A4CC9CFDA99CAA9E5ECD16 /* ActivityBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityBarView.swift; sourceTree = "<group>"; };
+		9D28F58AB44F4A4E15F9F3CB /* SidePanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidePanelView.swift; sourceTree = "<group>"; };
+		3495CEB09DC953194E2AC27F /* SearchPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPanelView.swift; sourceTree = "<group>"; };
+		31946341A4EB1C8D0B1E2644 /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
+		0A4AB5631BF6F3906B7D3544 /* CommandPaletteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandPaletteView.swift; sourceTree = "<group>"; };
+		F01BA5991139AB468FF5EA0E /* TabsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabsViewModelTests.swift; sourceTree = "<group>"; };
+		/* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		3089FB8C83BD21F1E68A7D9D /* Resources */ = {
@@ -117,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				C8E3D73745087DAE7A6C217B /* DocumentViewModel.swift */,
+				A76764A40394B63AC7A60C51 /* TabsViewModel.swift */,
 				2E73A87063F8F38714E2599EFEC30BB232667740 /* SidebarViewModel.swift */,
 			);
 			path = ViewModels;
@@ -147,6 +162,7 @@
 				D41CCD85C11DCC14A0B833BA /* FileServiceTests.swift */,
 				64ADF5E0AAEC152949D41FAC /* RenderServiceTests.swift */,
 				F422F8B79D85F5844EF1CE09616AE83D9BC43215 /* SidebarViewModelTests.swift */,
+				F01BA5991139AB468FF5EA0E /* TabsViewModelTests.swift */,
 			);
 			path = MarkdownEditorTests;
 			sourceTree = "<group>";
@@ -162,6 +178,11 @@
 				567DC26D79973BA8FD1A831602B96A18D19A5AF9 /* SidebarView.swift */,
 				3DCF457B54528DD7C728BB38D3D3D9A831D409F3 /* FileBrowserView.swift */,
 				DCA0D78D2383898F38370FF55438452171A86128 /* TOCView.swift */,
+				31A4CC9CFDA99CAA9E5ECD16 /* ActivityBarView.swift */,
+				9D28F58AB44F4A4E15F9F3CB /* SidePanelView.swift */,
+				3495CEB09DC953194E2AC27F /* SearchPanelView.swift */,
+				31946341A4EB1C8D0B1E2644 /* TabBarView.swift */,
+				0A4AB5631BF6F3906B7D3544 /* CommandPaletteView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -263,6 +284,7 @@
 				6389882F9125E721481760BE /* FileServiceTests.swift in Sources */,
 				0708DB9379029221837AD703 /* RenderServiceTests.swift in Sources */,
 				6E55F945258CD8E2D2D9855068ED3817AC38A7B5 /* SidebarViewModelTests.swift in Sources */,
+					56713369ADCB6AFD2CCFBF7D /* TabsViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,6 +293,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D89EB90AE62A1677EDE4858 /* ContentView.swift in Sources */,
+					06D0D553DB8E62CEED451BB0 /* TabsViewModel.swift in Sources */,
+					C7304FF9E235DFB44E067B97 /* ActivityBarView.swift in Sources */,
+					CB8D02B32D2B8DC17E318108 /* SidePanelView.swift in Sources */,
+					E83FE1A90499015FF2698AD0 /* SearchPanelView.swift in Sources */,
+					734CB26D3C79E5D22CC6F299 /* TabBarView.swift in Sources */,
+					BE30DFAD30667270CCC73B31 /* CommandPaletteView.swift in Sources */,
 				553D97F6B40150253F2EC0C8 /* DocumentViewModel.swift in Sources */,
 				44071A816C7DA46E51C4C5EE /* EditorView.swift in Sources */,
 				F032527764FA38F09479ABF9 /* FileCommands.swift in Sources */,
@@ -279,7 +307,6 @@
 				8DF0852F3E63BF572DED3F41 /* MarkdownEditorApp.swift in Sources */,
 				AD8CE50151D6505BAE5766B4 /* PreviewView.swift in Sources */,
 				C6D176189FC61E6B33A948401D23944C243AAA69 /* SidebarViewModel.swift in Sources */,
-				7052E8F5736D4265A863A1622942ECA0BB26FB03 /* SidebarView.swift in Sources */,
 				7795DFB81710D01996AD9F5667AD7C7F87F280D9 /* FileBrowserView.swift in Sources */,
 				757FEFA4BE1CA52DB1168D13C44E0B7626AA4E34 /* TOCView.swift in Sources */,
 				406ACDE9384694D06E0B19A1 /* RenderService.swift in Sources */,

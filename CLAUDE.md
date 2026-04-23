@@ -60,3 +60,7 @@ File open → FileService.open() → ViewModel receives (content, path) → view
 ### Implementation Order (bottom-up)
 
 Build in this order to maintain clean dependencies: Resources → Services → ViewModel → Views → App Shell.
+
+## Lessons Learned
+
+**JS 资源必须是浏览器 standalone 包，不能用 npm 包的 Node.js 入口文件**：从 CDN/npm 手动复制 JS 文件时（如 highlight.js），要确认是 `build/highlight.min.js`（UMD standalone）而非 `lib/highlight.js`（Node.js 入口，含 `require()`），后者在 WKWebView 中无法运行，会导致全局变量为 `undefined`，进而使所有依赖该库的逻辑静默失败。

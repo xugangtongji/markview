@@ -14,6 +14,13 @@
 <script>
   marked.use({ gfm: true, breaks: false });
 
+  // ── Content injection ─────────────────────────────────────────────────────
+  //
+  // Strategy: render with the default marked.parse() (version-agnostic),
+  // then build a source-line map via marked.lexer() and inject
+  // data-source-line attributes onto direct-child block elements in DOM order.
+  // This avoids all Renderer API breaking changes across marked versions.
+
   window.__updateContent = function(b64) {
     try {
       var raw = atob(b64);
@@ -21,19 +28,50 @@
       for (var i = 0; i < raw.length; i++) { bytes[i] = raw.charCodeAt(i); }
       var text = new TextDecoder('utf-8').decode(bytes);
       var content = document.getElementById('content');
+
+      // Step 1 — standard render (works with any marked.js version).
       content.innerHTML = marked.parse(text);
 
-      // Add id to headings after render — version-stable, no marked renderer API dependency.
-      content.querySelectorAll('h1, h2, h3, h4').forEach(function(h) {
+      // Step 2 — heading IDs (version-stable post-processing).
+      content.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(function(h) {
         var slug = h.textContent.toLowerCase()
           .replace(/\s+/g, '-')
           .replace(/[^\w-]/g, '');
         if (slug) h.id = slug;
       });
 
-      content.querySelectorAll('pre code').forEach(function(block) {
-        hljs.highlightElement(block);
-      });
+      // Step 3 — syntax highlighting (graceful if hljs not loaded).
+      if (typeof hljs !== 'undefined') {
+        content.querySelectorAll('pre code').forEach(function(block) {
+          hljs.highlightElement(block);
+        });
+      }
+
+      // Step 4 — build source-line map from lexer tokens.
+      // The lexer processes tokens in document order; the rendered DOM block
+      // elements appear in the same order → annotate them 1-to-1.
+      var tokens = marked.lexer(text);
+      var BLOCK = { heading: 1, paragraph: 1, code: 1, list: 1,
+                    blockquote: 1, table: 1, hr: 1 };
+      var blockLines = [];
+      var line = 1;
+      for (var i = 0; i < tokens.length; i++) {
+        var tok = tokens[i];
+        if (BLOCK[tok.type]) { blockLines.push(line); }
+        if (tok.raw) { line += (tok.raw.match(/\n/g) || []).length; }
+      }
+
+      // Step 5 — inject data-source-line onto block elements in DOM order.
+      // ':scope >' limits to direct children only, matching top-level lexer
+      // tokens and excluding nested elements (e.g. <p> inside <blockquote>).
+      var blockEls = content.querySelectorAll(
+        ':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6,' +
+        ':scope > p, :scope > pre, :scope > ul, :scope > ol,' +
+        ':scope > blockquote, :scope > table, :scope > hr'
+      );
+      for (var j = 0; j < blockEls.length && j < blockLines.length; j++) {
+        blockEls[j].setAttribute('data-source-line', blockLines[j]);
+      }
     } catch(e) {
       console.error('__updateContent error:', e);
     }
@@ -43,7 +81,7 @@
     document.documentElement.setAttribute('data-theme', theme);
   };
 
-  // ── Scroll sync ──────────────────────────────────────────────────────────
+  // ── Scroll sync (Editor → Preview only) ─────────────────────────────────
 
   // Total scrollable height helper — works across WKWebView/Safari variants.
   function __scrollHeight() {
@@ -53,39 +91,33 @@
     ) - window.innerHeight;
   }
 
-  // Called by Swift (EditorView → Preview direction).
-  // Uses window.scrollTo() — the only reliable scroll API in WKWebView on macOS.
-  // Sets __suppressScrollMsg before scrolling so the resulting scroll event is
-  // not echoed back to Swift.
+  // Called by Swift for tab-switch scroll-position restoration (fraction-based).
   window.__suppressScrollMsg = false;
   window.__scrollTo = function(fraction) {
     var h = __scrollHeight();
     if (h <= 0) return;
     window.__suppressScrollMsg = true;
-    window.scrollTo(0, h * fraction);           // positional form, most compatible
+    window.scrollTo(0, h * fraction);
     setTimeout(function() { window.__suppressScrollMsg = false; }, 150);
   };
 
-  // Sends scroll position to Swift (Preview → Editor direction).
-  // Uses window.scrollY — standard cross-browser scroll position.
-  // rAF-throttled to one message per frame; skipped while suppressed.
-  var __scrollRaf = null;
-  window.addEventListener('scroll', function() {
-    if (window.__suppressScrollMsg) return;
-    if (__scrollRaf) return;
-    __scrollRaf = requestAnimationFrame(function() {
-      __scrollRaf = null;
-      if (window.__suppressScrollMsg) return;
-      var h = __scrollHeight();
-      if (h <= 0) return;
-      var fraction = window.scrollY / h;        // scrollY = standard pageYOffset
-      if (window.webkit &&
-          window.webkit.messageHandlers &&
-          window.webkit.messageHandlers.scrollSync) {
-        window.webkit.messageHandlers.scrollSync.postMessage(fraction);
-      }
-    });
-  }, { passive: true });
+  // Called by Swift on every editor scroll (line-number-based, AST-mapped).
+  // Finds the block element whose data-source-line is the largest value ≤ lineNumber,
+  // then scrolls it into view.
+  window.__scrollToLine = function(lineNumber) {
+    var els = document.querySelectorAll('[data-source-line]');
+    if (!els.length) return;
+    var best = els[0];
+    var bestLine = parseInt(els[0].getAttribute('data-source-line'), 10) || 1;
+    for (var i = 1; i < els.length; i++) {
+      var l = parseInt(els[i].getAttribute('data-source-line'), 10) || 1;
+      if (l <= lineNumber && l >= bestLine) { best = els[i]; bestLine = l; }
+    }
+    best.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // Preview → Editor sync is intentionally disabled.
+  // The editor is the single source of scroll truth.
 </script>
 </body>
 </html>

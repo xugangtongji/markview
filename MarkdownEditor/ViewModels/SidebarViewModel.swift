@@ -2,10 +2,6 @@ import Combine
 import Foundation
 import SwiftUI
 
-enum SidebarTab: Equatable {
-    case files, toc
-}
-
 struct FileItem: Identifiable {
     let id: URL
     let name: String
@@ -23,7 +19,6 @@ struct TOCItem: Identifiable {
 @MainActor
 final class SidebarViewModel: ObservableObject {
     @Published var isVisible: Bool = true
-    @Published var activeTab: SidebarTab = .files
     @Published var workspaceURL: URL? = nil
     @Published var files: [FileItem] = []
     @Published var tocItems: [TOCItem] = []
@@ -87,6 +82,23 @@ final class SidebarViewModel: ObservableObject {
 
     func children(of url: URL) -> [FileItem] {
         loadItems(at: url)
+    }
+
+    // MARK: - File Creation
+
+    /// Creates a new .md file in the workspace root.
+    /// - Parameter name: bare filename without extension
+    /// - Returns: the new file's URL on success, nil if it already exists or creation failed.
+    @discardableResult
+    func createNewFile(named name: String) -> URL? {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, let dir = workspaceURL else { return nil }
+        let filename = trimmed.hasSuffix(".md") ? trimmed : trimmed + ".md"
+        let fileURL = dir.appendingPathComponent(filename)
+        guard !FileManager.default.fileExists(atPath: fileURL.path) else { return nil }
+        guard FileManager.default.createFile(atPath: fileURL.path, contents: Data(), attributes: nil) else { return nil }
+        refreshFiles()
+        return fileURL
     }
 
     // MARK: - TOC

@@ -40,6 +40,7 @@ struct FileRowView: View {
     let depth: Int
     @EnvironmentObject var sidebarVM: SidebarViewModel
     @EnvironmentObject var documentVM: DocumentViewModel
+    @EnvironmentObject var tabsVM: TabsViewModel
 
     private var isCurrentFile: Bool {
         !item.isDirectory && item.url == documentVM.fileURL
@@ -63,7 +64,10 @@ struct FileRowView: View {
                 if item.isDirectory {
                     sidebarVM.toggleDir(item.url)
                 } else {
-                    documentVM.openDocument(url: item.url)
+                    let content = (try? String(contentsOf: item.url, encoding: .utf8)) ?? ""
+                    tabsVM.snapshotActiveTab(from: documentVM)
+                    let id = tabsVM.openTab(url: item.url, content: content)
+                    tabsVM.loadTab(id: id, into: documentVM)
                 }
             } label: {
                 HStack(spacing: 4) {

@@ -13,6 +13,7 @@ struct PreviewView: NSViewRepresentable {
             name: "scrollSync"
         )
 
+
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
 
@@ -36,7 +37,19 @@ struct PreviewView: NSViewRepresentable {
         let trigger = viewModel.renderTrigger
         if coordinator.lastRendered != trigger {
             coordinator.lastRendered = trigger
-            if coordinator.isReady { coordinator.inject(markdown: trigger) }
+            if coordinator.isReady {
+                coordinator.inject(markdown: trigger)
+                // Restore scroll position after a tab switch (content just changed).
+                // Delayed slightly so the new content has time to lay out before scrolling.
+                let fraction = viewModel.scrollFraction
+                if fraction > 0 {
+                    let js = "window.__scrollTo && window.__scrollTo(\(fraction));"
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak webView] in
+                        webView?.evaluateJavaScript(js, completionHandler: nil)
+                    }
+                    viewModel.scrollFraction = 0
+                }
+            }
         }
 
         // TOC scroll: jump preview to heading anchor
@@ -60,11 +73,6 @@ struct PreviewView: NSViewRepresentable {
         var lastRendered: String = UUID().uuidString  // force first inject
         var pendingTheme: String = "light"
 
-        /// True while we are programmatically scrolling the preview in response to
-        /// an editor scroll — prevents the resulting JS scroll event from re-firing
-        /// previewDidScroll and creating a feedback loop.
-        private var isScrollingFromEditor = false
-
         override init() {
             super.init()
             NotificationCenter.default.addObserver(
@@ -79,36 +87,22 @@ struct PreviewView: NSViewRepresentable {
             NotificationCenter.default.removeObserver(self)
         }
 
-        // MARK: - Scroll sync (Editor → Preview direction)
+        // MARK: - Scroll sync (Editor → Preview, line-number based)
 
         @objc func editorDidScrollHandler(_ notification: Notification) {
             guard isReady,
-                  let fraction = notification.userInfo?["fraction"] as? Double else { return }
-            isScrollingFromEditor = true
-            // window.__scrollTo sets __suppressScrollMsg in JS before calling window.scrollTo,
-            // so the resulting scroll event does not echo back to Swift.
-            let js = "window.__scrollTo && window.__scrollTo(\(fraction));"
+                  let line = notification.userInfo?["line"] as? Int else { return }
+            let js = "window.__scrollToLine && window.__scrollToLine(\(line));"
             webView?.evaluateJavaScript(js, completionHandler: nil)
-            // Reset flag after the scroll event has had time to fire and be suppressed.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                self?.isScrollingFromEditor = false
-            }
         }
 
-        // MARK: - Scroll sync (Preview → Editor direction)
+        // MARK: - WKScriptMessageHandler
 
         func userContentController(
             _ userContentController: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
-            guard message.name == "scrollSync",
-                  let fraction = message.body as? Double,
-                  !isScrollingFromEditor else { return }
-            NotificationCenter.default.post(
-                name: .previewDidScroll,
-                object: nil,
-                userInfo: ["fraction": fraction]
-            )
+            // Preview → Editor sync intentionally disabled; editor is the sync source.
         }
 
         // MARK: - WKNavigationDelegate
